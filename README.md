@@ -12,3 +12,9 @@ This program reads the output signal of a Hall sensor to measure the rotation sp
 1. When the program is executed, it asks for a wheel diameter. This is useful to determine the "distance" covered by the wheel.
 2. Every 2 seconds (this is the default period, you can change the ``PERIOD`` variable to modify it), the program will update the speed measured from the time difference and the amount of times the magnet went by the Hall sensor.
 3. The program will print the results accordingly after each measure.
+
+### Mounting
+
+In order to use this program, you will need the appropriate electronic mounting. The example diagram below uses a Raspberry Pi.
+
+![Mounting](https://github.com/user-attachments/assets/60cf8277-9cbf-4c12-9479-361631009aeb)
