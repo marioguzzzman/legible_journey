@@ -14,11 +14,25 @@ def main():
     print("\nAudio files loaded:")
     for name, track in sound_manager.tracks.items():
         print(f"- {name}: {track.file_path}")
+        # Verify sound loaded correctly
+        if name in sound_manager.sounds:
+            print(f"  ✓ Sound loaded successfully")
+        else:
+            print(f"  ✗ Failed to load sound")
     
     print(f"\nVolume curves from config:")
     for track, curve in VOLUME_CURVES.items():
         print(f"- {track}: {curve}")
     print("\nPress Ctrl+C to exit")
+    
+    # Start playing all tracks immediately with zero volume
+    for name, track in sound_manager.tracks.items():
+        if name in sound_manager.sounds:
+            channel = sound_manager.channels[track.channel]
+            sound = sound_manager.sounds[name]
+            channel.play(sound, loops=-1, fade_ms=FADE_MS)
+            channel.set_volume(0.0)
+            print(f"Started playing {name} on channel {track.channel.name}")
     
     try:
         while True:
@@ -36,27 +50,23 @@ def main():
             # Update sound states based on movement
             if main_wheel.is_moving or pedal.is_moving:
                 sound_manager.update(current_speed, pedal_state)
+                print(f"\nMoving - Speed: {current_speed:.1f} km/h")
             else:
                 sound_manager.stop_all()
+                print("\nStopped")
             
             # Apply master volume from encoder
             sound_manager.set_master_volume(volume_control.volume)
             
-            # Debug output
-            print(f"\rSpeed: {current_speed:.1f}/{MAX_SPEED} km/h | "
-                  f"Pedaling: {pedal.is_moving} | "
-                  f"Direction: {pedal_state.name} | "
-                  f"Master Vol: {volume_control.volume:.2f}", end="")
-            
             # Audio playback monitoring
             if MONITOR_VOLUMES:
-                print("\nActive Channels:", end="")
+                print("\nActive Channels:")
                 for name, track in sound_manager.tracks.items():
                     channel = sound_manager.channels[track.channel]
                     if channel.get_busy():
-                        print(f"\n- {name}:")
-                        print(f"  File: {track.file_path}")
+                        print(f"- {name}:")
                         print(f"  Channel: {track.channel.name}")
+                        print(f"  Playing: {'Yes' if channel.get_busy() else 'No'}")
                         print(f"  Volume: {channel.get_volume():.2f}")
                         print(f"  Target Volume: {sound_manager.current_volumes[name]:.2f}")
             

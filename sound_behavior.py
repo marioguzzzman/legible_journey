@@ -104,17 +104,22 @@ class SoundManager:
             for name, track in self.tracks.items()
         }
         
+        # Debug print
+        print("\nTarget volumes:", target_volumes)
+        
         # Update volumes with LERP
         for name, track in self.tracks.items():
             channel = self.channels[track.channel]
             sound = self.sounds.get(name)
             
             if not sound:
+                print(f"No sound loaded for {name}")
                 continue
             
             # Start playing if not already playing
             if not channel.get_busy():
-                channel.play(sound, loops=-1 if track.loop else 0, fade_ms=track.fade_ms)
+                print(f"Starting playback of {name}")
+                channel.play(sound, loops=-1, fade_ms=track.fade_ms)
             
             # Update volume using LERP
             self.current_volumes[name] += (
@@ -124,6 +129,7 @@ class SoundManager:
             # Apply master volume
             final_volume = self.current_volumes[name] * MASTER_VOLUME
             channel.set_volume(final_volume)
+            print(f"{name}: target={target_volumes[name]:.2f}, current={self.current_volumes[name]:.2f}, final={final_volume:.2f}")
     
     def stop_all(self):
         """Stop all sounds"""
