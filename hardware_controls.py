@@ -4,19 +4,51 @@ import threading
 from config import *
 import json
 import os
+import atexit
 
 class RGBLed:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(RGBLed, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
-        # Using DigitalOutputDevice instead of PWMLED for simple on/off control
-        self.red = DigitalOutputDevice(LED_R)
-        self.green = DigitalOutputDevice(LED_G)
-        self.blue = DigitalOutputDevice(LED_B)
-        
-        # Set initial state - all LEDs on
-        self.red.on()
-        self.green.on()
-        self.blue.on()
-        self._blink_thread = None
+        if self._initialized:
+            return
+            
+        try:
+            # Using DigitalOutputDevice instead of PWMLED for simple on/off control
+            self.red = DigitalOutputDevice(LED_R)
+            self.green = DigitalOutputDevice(LED_G)
+            self.blue = DigitalOutputDevice(LED_B)
+            
+            # Set initial state - all LEDs on
+            self.red.on()
+            self.green.on()
+            self.blue.on()
+            self._blink_thread = None
+            
+            # Register cleanup function
+            atexit.register(self.cleanup)
+            
+            self._initialized = True
+            
+        except Exception as e:
+            print(f"Error initializing LED: {e}")
+            self.cleanup()
+            raise
+    
+    def cleanup(self):
+        """Clean up GPIO resources"""
+        if hasattr(self, 'red'):
+            self.red.close()
+        if hasattr(self, 'green'):
+            self.green.close()
+        if hasattr(self, 'blue'):
+            self.blue.close()
     
     def blink_audio_change(self):
         """Blink blue LED for audio changes"""
@@ -47,17 +79,51 @@ class RGBLed:
         self._blink_thread.start()
 
 class VolumeEncoder:
+    _instance = None  # Singleton instance
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(VolumeEncoder, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
-        self.clk = Button(ENCODER_CLK)
-        self.dt = Button(ENCODER_DT)
-        self.sw = Button(ENCODER_SW)
-        self.save_button = Button(VOLUME_SAVE_PIN)
-        
-        self._volume = self._load_volume()
-        self.clk_last_state = self.clk.value
-        
-        self.clk.when_pressed = self._check_rotation
-        self.save_button.when_pressed = self._save_volume
+        if self._initialized:
+            return
+            
+        try:
+            # Try to initialize the buttons
+            self.clk = Button(ENCODER_CLK)
+            self.dt = Button(ENCODER_DT)
+            self.sw = Button(ENCODER_SW)
+            self.save_button = Button(VOLUME_SAVE_PIN)
+            
+            self._volume = self._load_volume()
+            self.clk_last_state = self.clk.value
+            
+            self.clk.when_pressed = self._check_rotation
+            self.save_button.when_pressed = self._save_volume
+            
+            # Register cleanup function
+            atexit.register(self.cleanup)
+            
+            self._initialized = True
+            
+        except Exception as e:
+            print(f"Error initializing encoder: {e}")
+            self.cleanup()
+            raise
+    
+    def cleanup(self):
+        """Clean up GPIO resources"""
+        if hasattr(self, 'clk'):
+            self.clk.close()
+        if hasattr(self, 'dt'):
+            self.dt.close()
+        if hasattr(self, 'sw'):
+            self.sw.close()
+        if hasattr(self, 'save_button'):
+            self.save_button.close()
     
     @property
     def volume(self):
