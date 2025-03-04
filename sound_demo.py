@@ -29,7 +29,9 @@ def main():
             # Convert to PedalState
             pedal_state = PedalState.FORWARD if pedal_direction == 1 else (
                 PedalState.BACKWARD if pedal_direction == -1 else PedalState.STOPPED
-            )
+            ) 
+            if pedal.is_moving:
+                pedal_state = PedalState.FORWARD
             
             # Update sound states based on movement
             if main_wheel.is_moving or pedal.is_moving:
