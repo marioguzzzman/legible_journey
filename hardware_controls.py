@@ -27,10 +27,10 @@ class RGBLed:
             self.green = DigitalOutputDevice(LED_G)
             self.blue = DigitalOutputDevice(LED_B)
             
-            # Set initial state - all LEDs on
-            self.red.on()
+            # Set initial state - only green LED on to save power
+            self.red.off()
             self.green.on()
-            self.blue.on()
+            self.blue.off()
             self._blink_thread = None
             
             # Register cleanup function
@@ -148,12 +148,12 @@ class VolumeEncoder:
             
             self.clk_last_state = clk_state
             
-            # Check encoder button press (instead of separate save button)
+            # Check encoder button press with longer debounce
             if GPIO.input(ENCODER_SW):
                 self._save_volume()
-                sleep(0.2)  # Debounce
+                sleep(0.3)  # Longer debounce
             
-            sleep(0.001)  # Small delay to prevent CPU overload
+            sleep(0.005)  # Slightly longer delay
     
     @property
     def position(self):

@@ -52,7 +52,7 @@ DEBUG_LED = True
 
 VOLUME_CURVES = {
     "abstract": [(0, 0.0), (1, 1.0)], # The track is fully muted at 0 km/h and out loud at maximum speed. (Remove this comment if changed)
-    "deconstr": [(0, 0.0), (30, 0.1), (50, 1.0), (100, 0.7)], # The track begins to be heard at 30 % of the maximum speed, is out loud at 50 % and gets quieter at maximum speed. (Remove this comment if changed)
+    "deconstr": [(0, 0.0), (30, 0.3), (50, 1.0), (100, 0.7)], # The track begins to be heard at 30 % of the maximum speed, is out loud at 50 % and gets quieter at maximum speed. (Remove this comment if changed)
     "narrative": [(0, 1.0), (70, 0.0), (100, 0.0)] # This track is out loud at 0 km/h then gets muted at 70 % of the maximum speed. (Remove this comment if changed)
 }
 
