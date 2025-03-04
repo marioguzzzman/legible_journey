@@ -1,6 +1,6 @@
 # The Legible project's main program
 
-from colorama import Fore, Back, Style
+ from colorama import Fore, Back, Style
 
 print(Style.DIM, end="")
 import pygame
