@@ -1,4 +1,5 @@
 import time
+import os
 from wheel_meter import main_wheel, pedal
 from sound_behavior import SoundManager, PedalState
 from hardware_controls import VolumeEncoder
@@ -11,14 +12,17 @@ def main():
     volume_control = VolumeEncoder()
     
     print("Starting sound demo...")
-    print("\nAudio files loaded:")
+    print("\nChecking audio files:")
     for name, track in sound_manager.tracks.items():
         print(f"- {name}: {track.file_path}")
-        # Verify sound loaded correctly
-        if name in sound_manager.sounds:
-            print(f"  ✓ Sound loaded successfully")
+        if os.path.exists(track.file_path):
+            print("  [OK] File exists")
+            if name in sound_manager.sounds:
+                print("  [OK] Sound loaded")
+            else:
+                print("  [ERROR] Failed to load sound")
         else:
-            print(f"  ✗ Failed to load sound")
+            print("  [ERROR] File not found")
     
     print(f"\nVolume curves from config:")
     for track, curve in VOLUME_CURVES.items():
@@ -66,7 +70,7 @@ def main():
                     if channel.get_busy():
                         print(f"- {name}:")
                         print(f"  Channel: {track.channel.name}")
-                        print(f"  Playing: {'Yes' if channel.get_busy() else 'No'}")
+                        print(f"  Playing: {channel.get_busy()}")
                         print(f"  Volume: {channel.get_volume():.2f}")
                         print(f"  Target Volume: {sound_manager.current_volumes[name]:.2f}")
             
