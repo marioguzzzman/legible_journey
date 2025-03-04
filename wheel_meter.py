@@ -30,6 +30,10 @@ class PedalWheel:
         # Start monitoring thread
         self.monitor_thread = Thread(target=self.check_movement, daemon=True)
         self.monitor_thread.start()
+        
+        if DEBUG_MODE:
+            self.debug_thread = Thread(target=self.debug_output, daemon=True)
+            self.debug_thread.start()
     
     def sensor1_detected(self):
         current_time = time()
@@ -58,6 +62,22 @@ class PedalWheel:
                 self.stop_time = current_time
                 self.speed = 0
             sleep(0.1)
+
+    def debug_output(self):
+        """Debug output for pedal wheel"""
+        while True:
+            if DEBUG_MODE:
+                current_time = time()
+                print("\n=== Pedal Wheel Debug ===")
+                print(f"Moving: {self.is_moving}")
+                print(f"Direction: {'Forward' if self.direction == 1 else 'Backward' if self.direction == -1 else 'None'}")
+                print(f"Time since Sensor 1: {current_time - self.last_sensor1_time:.2f}s")
+                print(f"Time since Sensor 2: {current_time - self.last_sensor2_time:.2f}s")
+                if self.is_moving:
+                    print(f"Active time: {current_time - self.start_time:.1f}s")
+                if self.stop_time:
+                    print(f"Last stop: {current_time - self.stop_time:.1f}s ago")
+            sleep(DEBUG_REFRESH_RATE)
 
 class MainWheel:
     def __init__(self, pin, wheel_diameter_mm=DEFAULT_DIAMETER):
@@ -186,18 +206,21 @@ if __name__ == "__main__":
     print(f"Milestone tracking: Every {MILESTONE_TIME/60:.1f} minutes, mark every {MILESTONE_NOTIFICATION} milestones")
     print("Measuring...")
     
-    if not DEBUG_MODE:
-        while True:
-            print(f"Main Wheel - Speed: {main_wheel.speed:.2f} km/h | Moving: {main_wheel.is_moving}")
-            print(f"Pedal - Speed: {pedal.speed:.2f} km/h | Moving: {pedal.is_moving}")
-            if pedal.is_moving and main_wheel.is_moving:
-                print(f"Both wheels active for: {time() - max(pedal.start_time, main_wheel.start_time):.1f} seconds")
-                print(f"Milestones: {milestone_tracker.milestone_count} (Marks: {milestone_tracker.marks_triggered})")
-            sleep(1)
-    else:
+    if DEBUG_MODE:
         try:
             while True:
+                # Show all debug information
+                main_wheel.debug_output()
+                pedal.debug_output()
                 milestone_tracker.debug_output()
                 sleep(DEBUG_REFRESH_RATE)
         except KeyboardInterrupt:
             print("\nExiting debug mode...")
+    else:
+        while True:
+            print(f"Main Wheel - Speed: {main_wheel.speed:.2f} km/h | Moving: {main_wheel.is_moving}")
+            print(f"Pedal - Speed: {pedal.speed:.2f} km/h | Moving: {pedal.is_moving} | Direction: {pedal.direction}")
+            if pedal.is_moving and main_wheel.is_moving:
+                print(f"Both wheels active for: {time() - max(pedal.start_time, main_wheel.start_time):.1f} seconds")
+                print(f"Milestones: {milestone_tracker.milestone_count} (Marks: {milestone_tracker.marks_triggered})")
+            sleep(1)
