@@ -31,7 +31,7 @@ def main():
     
     # Start with deconstr track at full volume
     if 'deconstr' in sound_manager.sounds:
-        channel = sound_manager.channels[AudioChannel.DECONSTR]
+        channel = sound_manager.channels[track.channel]
         sound = sound_manager.sounds['deconstr']
         channel.play(sound, loops=-1)
         channel.set_volume(1.0)  # Full volume
