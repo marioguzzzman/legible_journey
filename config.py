@@ -34,8 +34,14 @@ MILESTONE_NOTIFICATION = 3  # Number of milestones needed to trigger a mark
 MILESTONE_DEBUG = True  # Show milestone progress in debug mode
 
 # Debug settings
-DEBUG_MODE = True # Set to True to see detailed sensor information
-DEBUG_REFRESH_RATE = 0.5 # How often to update debug information (seconds)
+DEBUG_MODE = True  # Master debug switch
+DEBUG_REFRESH_RATE = 0.5  # How often to update debug information (seconds)
+
+# Component debug flags (only work when DEBUG_MODE is True)
+DEBUG_MAIN_WHEEL = False
+DEBUG_PEDAL_WHEEL = False
+DEBUG_VOLUME = True
+DEBUG_LED = True
 
 ### LEGIBLE.PY
 

@@ -64,9 +64,8 @@ class PedalWheel:
             sleep(0.1)
 
     def debug_output(self):
-        """Debug output for pedal wheel"""
         while True:
-            if DEBUG_MODE:
+            if DEBUG_MODE and DEBUG_PEDAL_WHEEL:
                 current_time = time()
                 print("\n=== Pedal Wheel Debug ===")
                 print(f"Moving: {self.is_moving}")
@@ -134,7 +133,7 @@ class MainWheel:
 
     def debug_output(self):
         while True:
-            if DEBUG_MODE:
+            if DEBUG_MODE and DEBUG_MAIN_WHEEL:
                 current_time = time()
                 print("\n=== Main Wheel Debug ===")
                 print(f"Rotations this period: {self.count}")
@@ -203,17 +202,25 @@ speed_thread.start()
 if __name__ == "__main__":
     print(f"Using main wheel pin {PIN} and pedal pins {PEDAL_PIN1} and {PEDAL_PIN2}")
     print(f"Debug mode: {'ON' if DEBUG_MODE else 'OFF'}")
+    if DEBUG_MODE:
+        print("Active debug components:")
+        print(f"- Main Wheel: {'ON' if DEBUG_MAIN_WHEEL else 'OFF'}")
+        print(f"- Pedal Wheel: {'ON' if DEBUG_PEDAL_WHEEL else 'OFF'}")
+        print(f"- Volume Control: {'ON' if DEBUG_VOLUME else 'OFF'}")
+        print(f"- LED: {'ON' if DEBUG_LED else 'OFF'}")
     print(f"Milestone tracking: Every {MILESTONE_TIME/60:.1f} minutes, mark every {MILESTONE_NOTIFICATION} milestones")
     print("Measuring...")
     
     if DEBUG_MODE:
         try:
             while True:
-                # Show all debug information
-                main_wheel.debug_output()
-                pedal.debug_output()
-                milestone_tracker.debug_output()
-                volume_control.debug_output()
+                # Show only enabled debug components
+                if DEBUG_MAIN_WHEEL:
+                    main_wheel.debug_output()
+                if DEBUG_PEDAL_WHEEL:
+                    pedal.debug_output()
+                if DEBUG_VOLUME:
+                    volume_control.debug_output()
                 sleep(DEBUG_REFRESH_RATE)
         except KeyboardInterrupt:
             print("\nExiting debug mode...")

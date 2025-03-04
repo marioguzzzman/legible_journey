@@ -79,6 +79,15 @@ class RGBLed:
         self._blink_thread = threading.Thread(target=blink, daemon=True)
         self._blink_thread.start()
 
+    def debug_output(self):
+        while True:
+            if DEBUG_MODE and DEBUG_LED:
+                print("\n=== RGB LED Debug ===")
+                print(f"Red State: {self.red.value}")
+                print(f"Green State: {self.green.value}")
+                print(f"Blue State: {self.blue.value}")
+            sleep(DEBUG_REFRESH_RATE)
+
 class VolumeEncoder:
     _instance = None
     
@@ -120,9 +129,8 @@ class VolumeEncoder:
             raise
     
     def debug_output(self):
-        """Debug output for volume encoder"""
         while True:
-            if DEBUG_MODE:
+            if DEBUG_MODE and DEBUG_VOLUME:
                 print("\n=== Volume Encoder Debug ===")
                 print(f"Current Volume: {self.volume:.2f}")
                 print(f"CLK State: {self.clk.value}")
