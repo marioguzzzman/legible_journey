@@ -1,19 +1,50 @@
-from gpiozero import Button
+from gpiozero import Button, DigitalOutputDevice
 from time import sleep
 import threading
 from config import *
 import json
 import os
 
-# class RGBLed:  # Currently disabled
-#     def __init__(self):
-#         self.red = PWMLED(LED_R)
-#         self.green = PWMLED(LED_G)
-#         self.blue = PWMLED(LED_B)
-#         self.current_brightness = 0
-#         self._blink_thread = None
-#     
-#     ... rest of RGBLed class ...
+class RGBLed:
+    def __init__(self):
+        # Using DigitalOutputDevice instead of PWMLED for simple on/off control
+        self.red = DigitalOutputDevice(LED_R)
+        self.green = DigitalOutputDevice(LED_G)
+        self.blue = DigitalOutputDevice(LED_B)
+        
+        # Set initial state - all LEDs on
+        self.red.on()
+        self.green.on()
+        self.blue.on()
+        self._blink_thread = None
+    
+    def blink_audio_change(self):
+        """Blink blue LED for audio changes"""
+        if self._blink_thread and self._blink_thread.is_alive():
+            return
+        
+        def blink():
+            # Store current states
+            current_r = self.red.value
+            current_g = self.green.value
+            current_b = self.blue.value
+            
+            for _ in range(LED_BLINK_COUNT):
+                # Turn off red and green, only blue blinks
+                self.red.off()
+                self.green.off()
+                self.blue.on()
+                sleep(LED_BLINK_DURATION)
+                self.blue.off()
+                sleep(LED_BLINK_DURATION)
+            
+            # Restore original states
+            self.red.value = current_r
+            self.green.value = current_g
+            self.blue.value = current_b
+        
+        self._blink_thread = threading.Thread(target=blink, daemon=True)
+        self._blink_thread.start()
 
 class VolumeEncoder:
     def __init__(self):
