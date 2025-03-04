@@ -10,6 +10,7 @@ import wheel_meter
 from config import *
 import time
 import numpy as np
+from hardware_controls import VolumeEncoder, RGBLed
 
 pygame.mixer.init()
 
@@ -50,16 +51,27 @@ def get_all_volumes(speed):
 
 def pygame_loop():
     running = True
+    volume_control = VolumeEncoder()
+    led = RGBLed()
+    last_volumes = {channel: 0.0 for channel in channels}
     
     while running:
         target_volumes = {channel: interpolate_volume(wheel_meter.speed, VOLUME_CURVES[channel]) for channel in channels}
 
         for name, channel in channels.items():
             current_volumes[name] += (target_volumes[name] - current_volumes[name]) * LERP_SPEED
-            channel.set_volume(current_volumes[name])
+            # Apply master volume
+            final_volume = current_volumes[name] * volume_control.volume
+            channel.set_volume(final_volume)
+            
+            # Check if volume changed significantly
+            if abs(final_volume - last_volumes[name]) > 0.1:
+                led.blink_audio_change()
+            last_volumes[name] = final_volume
 
         if (MONITOR_VOLUMES):
-            print(f"Speed: {wheel_meter.speed} | Volumes: {get_all_volumes(wheel_meter.speed)}")
+            print(f"Speed: {wheel_meter.speed} | Master Volume: {volume_control.volume:.2f}")
+            print(f"Volumes: {get_all_volumes(wheel_meter.speed)}")
 
         time.sleep(0.1)
 

@@ -1,8 +1,24 @@
 ### WHEEL_METER.PY
 
-PIN = 17 # The GPIO pin used for the main wheel sensor's digital output
-PEDAL_PIN1 = 27 # First pedal sensor pin
-PEDAL_PIN2 = 22 # Second pedal sensor pin
+# Wheel Sensors
+PIN = 17          # GPIO17 (pin 11) - Main wheel sensor
+PEDAL_PIN = 27    # GPIO27 (pin 13) - Pedal sensor
+# PEDAL_PIN2 = 22 # Removed - direction detection disabled
+
+# Volume Encoder Pins
+ENCODER_CLK = 23  # GPIO23 (pin 16) - Encoder clock
+ENCODER_DT = 24   # GPIO24 (pin 18) - Encoder data
+ENCODER_SW = 25   # GPIO25 (pin 22) - Encoder switch
+VOLUME_SAVE_PIN = 16  # GPIO16 (pin 36) - Save button
+
+# RGB LED Pins (Common cathode LED)
+LED_R = 5         # GPIO5  (pin 29) - Red channel
+LED_G = 6         # GPIO6  (pin 31) - Green channel
+LED_B = 13        # GPIO13 (pin 33) - Blue channel
+LED_BRIGHTNESS_STEPS = 3  # One step per milestone
+LED_BLINK_DURATION = 0.2  # Seconds for each blink
+LED_BLINK_COUNT = 3  # Number of blinks for audio changes
+
 PEDAL_SENSOR_DISTANCE = 0.05 # Distance between pedal sensors in meters
 MOVEMENT_TIMEOUT = 2 # Time in seconds after which wheel is considered stopped
 MIN_SPEED = 0.5 # Minimum speed in km/h to consider wheel moving

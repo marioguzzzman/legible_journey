@@ -7,87 +7,49 @@ from math import pi
 from colorama import Fore, Back, Style
 import numpy as np
 from datetime import datetime
+from hardware_controls import RGBLed, VolumeEncoder
 
 # Constants
 from config import *
 
 class PedalWheel:
-    def __init__(self, pin1, pin2, bounce_time=BOUNCE_TIME):
-        self.sensor1 = Button(pin1, bounce_time=bounce_time)
-        self.sensor2 = Button(pin2, bounce_time=bounce_time)
-        
-        self.last_sensor1_time = 0
-        self.last_sensor2_time = 0
-        self.direction = 0  # 1 for forward, -1 for backward
+    def __init__(self, pin, bounce_time=BOUNCE_TIME):
+        self.sensor = Button(pin, bounce_time=bounce_time)
+        self.last_sensor_time = 0
         self.is_moving = False
         self.speed = 0
+        self.start_time = 0
+        self.stop_time = 0
         
-        self.start_time = 0  # When pedal starts moving
-        self.stop_time = 0   # When pedal stops moving
-        
-        self.sensor1.when_pressed = self.sensor1_detected
-        self.sensor2.when_pressed = self.sensor2_detected
+        self.sensor.when_pressed = self.sensor_detected
         
         # Start monitoring thread
         self.monitor_thread = Thread(target=self.check_movement, daemon=True)
         self.monitor_thread.start()
+    
+    def sensor_detected(self):
+        current_time = time()
+        if not self.is_moving:
+            self.is_moving = True
+            self.start_time = current_time
         
-        if DEBUG_MODE:
-            self.debug_thread = Thread(target=self.debug_output, daemon=True)
-            self.debug_thread.start()
-    
-    def sensor1_detected(self):
-        current_time = time()
-        if self.last_sensor2_time > self.last_sensor1_time:
-            self.direction = 1  # Forward
-        self.last_sensor1_time = current_time
-        self.is_moving = True
-        if not self.start_time:
-            self.start_time = current_time
-    
-    def sensor2_detected(self):
-        current_time = time()
-        if self.last_sensor1_time > self.last_sensor2_time:
-            self.direction = -1  # Backward
-        self.last_sensor2_time = current_time
-        self.is_moving = True
-        if not self.start_time:
-            self.start_time = current_time
+        # Calculate speed based on time between triggers
+        if self.last_sensor_time:
+            time_between = current_time - self.last_sensor_time
+            if time_between > 0:
+                self.speed = (PEDAL_SENSOR_DISTANCE / time_between) * 3.6  # km/h
+        
+        self.last_sensor_time = current_time
     
     def check_movement(self):
         while True:
             current_time = time()
-            # If no sensor triggered for MOVEMENT_TIMEOUT seconds, consider as stopped
-            if (current_time - max(self.last_sensor1_time, self.last_sensor2_time) > MOVEMENT_TIMEOUT 
+            if (current_time - self.last_sensor_time > MOVEMENT_TIMEOUT 
                 and self.is_moving):
                 self.is_moving = False
                 self.stop_time = current_time
                 self.speed = 0
-            
-            # Calculate speed if moving
-            if self.is_moving and self.last_sensor1_time and self.last_sensor2_time:
-                time_between_sensors = abs(self.last_sensor1_time - self.last_sensor2_time)
-                if time_between_sensors > 0:
-                    # Calculate speed based on known distance between sensors
-                    self.speed = (PEDAL_SENSOR_DISTANCE / time_between_sensors) * 3.6  # km/h
-            
             sleep(0.1)
-
-    def debug_output(self):
-        while True:
-            if DEBUG_MODE:
-                current_time = time()
-                time_since_sensor1 = current_time - self.last_sensor1_time
-                time_since_sensor2 = current_time - self.last_sensor2_time
-                print("\n=== Pedal Wheel Debug ===")
-                print(f"Time since Sensor 1: {time_since_sensor1:.2f}s")
-                print(f"Time since Sensor 2: {time_since_sensor2:.2f}s")
-                print(f"Direction: {'Forward' if self.direction == 1 else 'Backward' if self.direction == -1 else 'None'}")
-                print(f"Moving: {self.is_moving}")
-                print(f"Speed: {self.speed:.2f} km/h")
-                if self.is_moving:
-                    print(f"Active time: {current_time - self.start_time:.1f}s")
-            sleep(DEBUG_REFRESH_RATE)
 
 class MainWheel:
     def __init__(self, pin, wheel_diameter_mm=DEFAULT_DIAMETER):
@@ -162,20 +124,19 @@ class MilestoneTracker:
         self.last_milestone_mark = 0
         self.marks_triggered = 0
         self.last_check_time = time()
+        self.led = RGBLed()
     
     def update(self, main_wheel_moving, pedal_moving):
         current_time = time()
         
-        # Only count time when both wheels are moving
         if main_wheel_moving and pedal_moving:
             self.active_time += current_time - self.last_check_time
             
-            # Check if we've reached another milestone
             milestones = int(self.active_time / MILESTONE_TIME)
             if milestones > self.milestone_count:
                 self.milestone_count = milestones
+                self.led.set_brightness(self.milestone_count)
                 
-                # Check if we should trigger a mark
                 if self.milestone_count >= MILESTONE_NOTIFICATION * (self.marks_triggered + 1):
                     self.marks_triggered += 1
                     self.last_milestone_mark = current_time
@@ -196,11 +157,10 @@ class MilestoneTracker:
                 print(f"Time since last mark: {(time() - self.last_milestone_mark)/60:.1f} minutes")
             print(f"Progress to next mark: {self.milestone_count}/{MILESTONE_NOTIFICATION * (self.marks_triggered + 1)}")
 
-# Initialize wheels
+# Initialize hardware
 main_wheel = MainWheel(PIN)
-pedal = PedalWheel(PEDAL_PIN1, PEDAL_PIN2)
-
-# Initialize milestone tracker
+pedal = PedalWheel(PEDAL_PIN)  # Using single sensor
+volume_control = VolumeEncoder()
 milestone_tracker = MilestoneTracker()
 
 # For compatibility with existing code
@@ -220,7 +180,7 @@ speed_thread = Thread(target=update_speed, daemon=True)
 speed_thread.start()
 
 if __name__ == "__main__":
-    print(f"Using main wheel pin {PIN} and pedal pins {PEDAL_PIN1}, {PEDAL_PIN2}")
+    print(f"Using main wheel pin {PIN} and pedal pin {PEDAL_PIN}")
     print(f"Debug mode: {'ON' if DEBUG_MODE else 'OFF'}")
     print(f"Milestone tracking: Every {MILESTONE_TIME/60:.1f} minutes, mark every {MILESTONE_NOTIFICATION} milestones")
     print("Measuring...")
@@ -228,7 +188,7 @@ if __name__ == "__main__":
     if not DEBUG_MODE:
         while True:
             print(f"Main Wheel - Speed: {main_wheel.speed:.2f} km/h | Moving: {main_wheel.is_moving}")
-            print(f"Pedal - Speed: {pedal.speed:.2f} km/h | Direction: {pedal.direction} | Moving: {pedal.is_moving}")
+            print(f"Pedal - Speed: {pedal.speed:.2f} km/h | Moving: {pedal.is_moving}")
             if pedal.is_moving and main_wheel.is_moving:
                 print(f"Both wheels active for: {time() - max(pedal.start_time, main_wheel.start_time):.1f} seconds")
                 print(f"Milestones: {milestone_tracker.milestone_count} (Marks: {milestone_tracker.marks_triggered})")
