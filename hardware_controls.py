@@ -5,6 +5,7 @@ from config import *
 import json
 import os
 import atexit
+from threading import Thread
 
 class RGBLed:
     _instance = None
@@ -79,7 +80,7 @@ class RGBLed:
         self._blink_thread.start()
 
 class VolumeEncoder:
-    _instance = None  # Singleton instance
+    _instance = None
     
     def __new__(cls):
         if cls._instance is None:
@@ -107,12 +108,28 @@ class VolumeEncoder:
             # Register cleanup function
             atexit.register(self.cleanup)
             
+            if DEBUG_MODE:
+                self.debug_thread = Thread(target=self.debug_output, daemon=True)
+                self.debug_thread.start()
+            
             self._initialized = True
             
         except Exception as e:
             print(f"Error initializing encoder: {e}")
             self.cleanup()
             raise
+    
+    def debug_output(self):
+        """Debug output for volume encoder"""
+        while True:
+            if DEBUG_MODE:
+                print("\n=== Volume Encoder Debug ===")
+                print(f"Current Volume: {self.volume:.2f}")
+                print(f"CLK State: {self.clk.value}")
+                print(f"DT State: {self.dt.value}")
+                print(f"Switch State: {self.sw.value}")
+                print(f"Save Button State: {self.save_button.value}")
+            sleep(DEBUG_REFRESH_RATE)
     
     def cleanup(self):
         """Clean up GPIO resources"""

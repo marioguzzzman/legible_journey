@@ -213,6 +213,7 @@ if __name__ == "__main__":
                 main_wheel.debug_output()
                 pedal.debug_output()
                 milestone_tracker.debug_output()
+                volume_control.debug_output()
                 sleep(DEBUG_REFRESH_RATE)
         except KeyboardInterrupt:
             print("\nExiting debug mode...")
