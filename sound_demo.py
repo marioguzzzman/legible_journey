@@ -29,14 +29,23 @@ def main():
         print(f"- {track}: {curve}")
     print("\nPress Ctrl+C to exit")
     
-    # Start playing all tracks immediately with zero volume
+    # Start with deconstr track at full volume
+    if 'deconstr' in sound_manager.sounds:
+        channel = sound_manager.channels[AudioChannel.DECONSTR]
+        sound = sound_manager.sounds['deconstr']
+        channel.play(sound, loops=-1)
+        channel.set_volume(1.0)  # Full volume
+        sound_manager.current_volumes['deconstr'] = 1.0
+        print("Started playing deconstr track at full volume")
+    
+    # Other tracks start muted
     for name, track in sound_manager.tracks.items():
-        if name in sound_manager.sounds:
+        if name != 'deconstr' and name in sound_manager.sounds:
             channel = sound_manager.channels[track.channel]
             sound = sound_manager.sounds[name]
             channel.play(sound, loops=-1, fade_ms=FADE_MS)
             channel.set_volume(0.0)
-            print(f"Started playing {name} on channel {track.channel.name}")
+            print(f"Started playing {name} on channel {track.channel.name} (muted)")
     
     try:
         while True:
