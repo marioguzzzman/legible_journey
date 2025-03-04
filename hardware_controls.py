@@ -6,6 +6,7 @@ import json
 import os
 import atexit
 from threading import Thread
+from RPi import GPIO
 
 class RGBLed:
     _instance = None
@@ -102,24 +103,27 @@ class VolumeEncoder:
             return
             
         try:
-            # Try to initialize the buttons
-            self.clk = Button(ENCODER_CLK)
-            self.dt = Button(ENCODER_DT)
-            self.sw = Button(ENCODER_SW)
-            self.save_button = Button(VOLUME_SAVE_PIN)
+            # Setup GPIO
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(ENCODER_CLK, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(ENCODER_DT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(ENCODER_SW, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(VOLUME_SAVE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             
-            # Initialize position counter (0-100) and convert to volume
+            # Initialize position counter (0-100)
             self._position = int(self._load_volume() * 100)
-            self.clk_last_state = self.clk.value
+            self.clk_last_state = GPIO.input(ENCODER_CLK)
             
-            self.clk.when_pressed = self._check_rotation
-            self.save_button.when_pressed = self._save_volume
+            # Start monitoring thread
+            self.running = True
+            self.monitor_thread = threading.Thread(target=self._monitor_rotation, daemon=True)
+            self.monitor_thread.start()
             
-            # Register cleanup function
+            # Register cleanup
             atexit.register(self.cleanup)
             
             if DEBUG_MODE:
-                self.debug_thread = Thread(target=self.debug_output, daemon=True)
+                self.debug_thread = threading.Thread(target=self.debug_output, daemon=True)
                 self.debug_thread.start()
             
             self._initialized = True
@@ -128,6 +132,28 @@ class VolumeEncoder:
             print(f"Error initializing encoder: {e}")
             self.cleanup()
             raise
+    
+    def _monitor_rotation(self):
+        """Monitor encoder rotation in a separate thread"""
+        while self.running:
+            clk_state = GPIO.input(ENCODER_CLK)
+            dt_state = GPIO.input(ENCODER_DT)
+            
+            if clk_state != self.clk_last_state:
+                if dt_state != clk_state:
+                    self.position = self.position + 1  # More fine-grained control
+                else:
+                    self.position = self.position - 1
+                print(f"Position: {self.position}% | Volume: {self.volume:.2f}")
+            
+            self.clk_last_state = clk_state
+            
+            # Check save button
+            if GPIO.input(VOLUME_SAVE_PIN):
+                self._save_volume()
+                sleep(0.2)  # Debounce
+            
+            sleep(0.001)  # Small delay to prevent CPU overload
     
     @property
     def position(self):
@@ -144,20 +170,25 @@ class VolumeEncoder:
         """Convert position (0-100) to volume (0.0-1.0)"""
         return self.position / 100.0
     
-    def _check_rotation(self):
-        clk_state = self.clk.value
-        dt_state = self.dt.value
-        
-        if clk_state != self.clk_last_state:
-            if dt_state != clk_state:
-                # Clockwise, increase by 5
-                self.position = self.position + 5
-            else:
-                # Counter-clockwise, decrease by 5
-                self.position = self.position - 5
-            print(f"Position: {self.position}% | Volume: {self.volume:.2f}")
-        
-        self.clk_last_state = clk_state
+    def cleanup(self):
+        """Clean up GPIO resources"""
+        self.running = False
+        if hasattr(self, 'monitor_thread'):
+            self.monitor_thread.join(timeout=1.0)
+        GPIO.cleanup([ENCODER_CLK, ENCODER_DT, ENCODER_SW, VOLUME_SAVE_PIN])
+    
+    def debug_output(self):
+        """Debug output thread"""
+        while self.running:
+            if DEBUG_MODE and DEBUG_VOLUME:
+                print("\n=== Volume Encoder Debug ===")
+                print(f"Position: {self.position}%")
+                print(f"Volume: {self.volume:.2f}")
+                print(f"CLK State: {GPIO.input(ENCODER_CLK)}")
+                print(f"DT State: {GPIO.input(ENCODER_DT)}")
+                print(f"Switch State: {GPIO.input(ENCODER_SW)}")
+                print(f"Save Button State: {GPIO.input(VOLUME_SAVE_PIN)}")
+            sleep(DEBUG_REFRESH_RATE)
     
     def _save_volume(self):
         """Save volume to both JSON and config file"""
@@ -188,29 +219,6 @@ class VolumeEncoder:
                 return data.get('master_volume', DEFAULT_MASTER_VOLUME)
         except:
             return DEFAULT_MASTER_VOLUME
-    
-    def debug_output(self):
-        while True:
-            if DEBUG_MODE and DEBUG_VOLUME:
-                print("\n=== Volume Encoder Debug ===")
-                print(f"Position: {self.position}%")
-                print(f"Volume: {self.volume:.2f}")
-                print(f"CLK State: {self.clk.value}")
-                print(f"DT State: {self.dt.value}")
-                print(f"Switch State: {self.sw.value}")
-                print(f"Save Button State: {self.save_button.value}")
-            sleep(DEBUG_REFRESH_RATE)
-    
-    def cleanup(self):
-        """Clean up GPIO resources"""
-        if hasattr(self, 'clk'):
-            self.clk.close()
-        if hasattr(self, 'dt'):
-            self.dt.close()
-        if hasattr(self, 'sw'):
-            self.sw.close()
-        if hasattr(self, 'save_button'):
-            self.save_button.close()
     
     def _update_config_file(self):
         """Update the config.py file with new master volume"""
