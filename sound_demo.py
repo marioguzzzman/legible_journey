@@ -11,7 +11,11 @@ def main():
     volume_control = VolumeEncoder()
     
     print("Starting sound demo...")
-    print(f"Using volume curves from config:")
+    print("\nAudio files loaded:")
+    for name, track in sound_manager.tracks.items():
+        print(f"- {name}: {track.file_path}")
+    
+    print(f"\nVolume curves from config:")
     for track, curve in VOLUME_CURVES.items():
         print(f"- {track}: {curve}")
     print("\nPress Ctrl+C to exit")
@@ -42,10 +46,17 @@ def main():
                   f"Direction: {pedal_state.name} | "
                   f"Master Vol: {volume_control.volume:.2f}", end="")
             
+            # Audio playback monitoring
             if MONITOR_VOLUMES:
-                print("\nVolumes:", end="")
-                for name, vol in sound_manager.current_volumes.items():
-                    print(f" {name}: {vol:.2f}", end="")
+                print("\nActive Channels:", end="")
+                for name, track in sound_manager.tracks.items():
+                    channel = sound_manager.channels[track.channel]
+                    if channel.get_busy():
+                        print(f"\n- {name}:")
+                        print(f"  File: {track.file_path}")
+                        print(f"  Channel: {track.channel.name}")
+                        print(f"  Volume: {channel.get_volume():.2f}")
+                        print(f"  Target Volume: {sound_manager.current_volumes[name]:.2f}")
             
             time.sleep(0.1)
             
