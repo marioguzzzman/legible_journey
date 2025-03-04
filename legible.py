@@ -10,7 +10,7 @@ import wheel_meter
 from config import *
 import time
 import numpy as np
-from hardware_controls import VolumeEncoder, RGBLed
+from hardware_controls import VolumeEncoder
 
 pygame.mixer.init()
 
@@ -52,7 +52,6 @@ def get_all_volumes(speed):
 def pygame_loop():
     running = True
     volume_control = VolumeEncoder()
-    led = RGBLed()
     last_volumes = {channel: 0.0 for channel in channels}
     
     while running:
@@ -64,8 +63,7 @@ def pygame_loop():
             final_volume = current_volumes[name] * volume_control.volume
             channel.set_volume(final_volume)
             
-            if abs(final_volume - last_volumes[name]) > 0.1:
-                led.blink_audio_change()
+            # Store last volume without LED feedback
             last_volumes[name] = final_volume
 
         if (MONITOR_VOLUMES):

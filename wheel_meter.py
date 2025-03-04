@@ -7,44 +7,52 @@ from math import pi
 from colorama import Fore, Back, Style
 import numpy as np
 from datetime import datetime
-from hardware_controls import RGBLed, VolumeEncoder
+from hardware_controls import VolumeEncoder
 
 # Constants
 from config import *
 
 class PedalWheel:
-    def __init__(self, pin, bounce_time=BOUNCE_TIME):
-        self.sensor = Button(pin, bounce_time=bounce_time)
-        self.last_sensor_time = 0
+    def __init__(self, pin1, pin2, bounce_time=BOUNCE_TIME):
+        self.sensor1 = Button(pin1, bounce_time=bounce_time)
+        self.sensor2 = Button(pin2, bounce_time=bounce_time)
+        self.last_sensor1_time = 0
+        self.last_sensor2_time = 0
+        self.direction = 0  # 1 for forward, -1 for backward
         self.is_moving = False
         self.speed = 0
         self.start_time = 0
         self.stop_time = 0
         
-        self.sensor.when_pressed = self.sensor_detected
+        self.sensor1.when_pressed = self.sensor1_detected
+        self.sensor2.when_pressed = self.sensor2_detected
         
         # Start monitoring thread
         self.monitor_thread = Thread(target=self.check_movement, daemon=True)
         self.monitor_thread.start()
     
-    def sensor_detected(self):
+    def sensor1_detected(self):
         current_time = time()
-        if not self.is_moving:
-            self.is_moving = True
+        if self.last_sensor2_time > self.last_sensor1_time:
+            self.direction = 1  # Forward
+        self.last_sensor1_time = current_time
+        self.is_moving = True
+        if not self.start_time:
             self.start_time = current_time
-        
-        # Calculate speed based on time between triggers
-        if self.last_sensor_time:
-            time_between = current_time - self.last_sensor_time
-            if time_between > 0:
-                self.speed = (PEDAL_SENSOR_DISTANCE / time_between) * 3.6  # km/h
-        
-        self.last_sensor_time = current_time
+    
+    def sensor2_detected(self):
+        current_time = time()
+        if self.last_sensor1_time > self.last_sensor2_time:
+            self.direction = -1  # Backward
+        self.last_sensor2_time = current_time
+        self.is_moving = True
+        if not self.start_time:
+            self.start_time = current_time
     
     def check_movement(self):
         while True:
             current_time = time()
-            if (current_time - self.last_sensor_time > MOVEMENT_TIMEOUT 
+            if (current_time - max(self.last_sensor1_time, self.last_sensor2_time) > MOVEMENT_TIMEOUT 
                 and self.is_moving):
                 self.is_moving = False
                 self.stop_time = current_time
@@ -124,7 +132,6 @@ class MilestoneTracker:
         self.last_milestone_mark = 0
         self.marks_triggered = 0
         self.last_check_time = time()
-        self.led = RGBLed()
     
     def update(self, main_wheel_moving, pedal_moving):
         current_time = time()
@@ -135,15 +142,10 @@ class MilestoneTracker:
             milestones = int(self.active_time / MILESTONE_TIME)
             if milestones > self.milestone_count:
                 self.milestone_count = milestones
-                self.led.set_brightness(self.milestone_count)
-                
-                if self.milestone_count >= MILESTONE_NOTIFICATION * (self.marks_triggered + 1):
-                    self.marks_triggered += 1
-                    self.last_milestone_mark = current_time
-                    print(f"\n🏆 MILESTONE MARK {self.marks_triggered} ACHIEVED! 🏆")
-                    print(f"Total active time: {self.active_time/60:.1f} minutes")
-                elif MILESTONE_DEBUG:
-                    print(f"\nMilestone progress: {self.milestone_count} / {MILESTONE_NOTIFICATION * (self.marks_triggered + 1)}")
+                print(f"\n🏆 MILESTONE MARK {self.marks_triggered + 1} ACHIEVED! 🏆")
+                print(f"Total active time: {self.active_time/60:.1f} minutes")
+                self.marks_triggered += 1
+                self.last_milestone_mark = current_time
         
         self.last_check_time = current_time
     
@@ -155,11 +157,10 @@ class MilestoneTracker:
             print(f"Marks triggered: {self.marks_triggered}")
             if self.marks_triggered > 0:
                 print(f"Time since last mark: {(time() - self.last_milestone_mark)/60:.1f} minutes")
-            print(f"Progress to next mark: {self.milestone_count}/{MILESTONE_NOTIFICATION * (self.marks_triggered + 1)}")
 
 # Initialize hardware
 main_wheel = MainWheel(PIN)
-pedal = PedalWheel(PEDAL_PIN)  # Using single sensor
+pedal = PedalWheel(PEDAL_PIN1, PEDAL_PIN2)  # Using both pedal sensors
 volume_control = VolumeEncoder()
 milestone_tracker = MilestoneTracker()
 
@@ -180,7 +181,7 @@ speed_thread = Thread(target=update_speed, daemon=True)
 speed_thread.start()
 
 if __name__ == "__main__":
-    print(f"Using main wheel pin {PIN} and pedal pin {PEDAL_PIN}")
+    print(f"Using main wheel pin {PIN} and pedal pins {PEDAL_PIN1} and {PEDAL_PIN2}")
     print(f"Debug mode: {'ON' if DEBUG_MODE else 'OFF'}")
     print(f"Milestone tracking: Every {MILESTONE_TIME/60:.1f} minutes, mark every {MILESTONE_NOTIFICATION} milestones")
     print("Measuring...")
