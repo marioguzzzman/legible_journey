@@ -224,23 +224,36 @@ class VolumeEncoder:
         config_path = os.path.join(os.path.dirname(__file__), 'config.py')
         
         try:
+            # Read all lines from config file
             with open(config_path, 'r') as f:
                 lines = f.readlines()
             
-            # Find and update/add the MASTER_VOLUME line
-            volume_line_found = False
+            # Find and update both DEFAULT_MASTER_VOLUME and MASTER_VOLUME
+            default_found = False
+            current_found = False
+            
             for i, line in enumerate(lines):
-                if line.startswith('MASTER_VOLUME'):
-                    lines[i] = f"MASTER_VOLUME = {self.volume:.2f}  # Master volume level (0.0 to 1.0)\n"
-                    volume_line_found = True
+                if line.strip().startswith('DEFAULT_MASTER_VOLUME'):
+                    lines[i] = f"DEFAULT_MASTER_VOLUME = {self.volume:.2f}  # Default master volume level\n"
+                    default_found = True
+                elif line.strip().startswith('MASTER_VOLUME'):
+                    lines[i] = f"MASTER_VOLUME = {self.volume:.2f}  # Current master volume level\n"
+                    current_found = True
+                
+                if default_found and current_found:
                     break
             
-            # Add MASTER_VOLUME if not found
-            if not volume_line_found:
-                lines.append(f"\nMASTER_VOLUME = {self.volume:.2f}  # Master volume level (0.0 to 1.0)\n")
+            # Add values if not found
+            if not default_found:
+                lines.append(f"\nDEFAULT_MASTER_VOLUME = {self.volume:.2f}  # Default master volume level\n")
+            if not current_found:
+                lines.append(f"MASTER_VOLUME = {self.volume:.2f}  # Current master volume level\n")
             
+            # Write back to config file
             with open(config_path, 'w') as f:
                 f.writelines(lines)
+            
+            print(f"Config file updated with volume: {self.volume:.2f}")
                 
         except Exception as e:
             print(f"Error updating config file: {e}")
