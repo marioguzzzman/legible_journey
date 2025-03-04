@@ -108,7 +108,6 @@ class VolumeEncoder:
             GPIO.setup(ENCODER_CLK, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_DT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_SW, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-            GPIO.setup(VOLUME_SAVE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             
             # Initialize position counter (0-100)
             self._position = int(self._load_volume() * 100)
@@ -139,17 +138,18 @@ class VolumeEncoder:
             clk_state = GPIO.input(ENCODER_CLK)
             dt_state = GPIO.input(ENCODER_DT)
             
+            # Check rotation
             if clk_state != self.clk_last_state:
                 if dt_state != clk_state:
-                    self.position = self.position + 1  # More fine-grained control
+                    self.position = self.position + 1
                 else:
                     self.position = self.position - 1
                 print(f"Position: {self.position}% | Volume: {self.volume:.2f}")
             
             self.clk_last_state = clk_state
             
-            # Check save button
-            if GPIO.input(VOLUME_SAVE_PIN):
+            # Check encoder button press (instead of separate save button)
+            if GPIO.input(ENCODER_SW):
                 self._save_volume()
                 sleep(0.2)  # Debounce
             
@@ -175,7 +175,7 @@ class VolumeEncoder:
         self.running = False
         if hasattr(self, 'monitor_thread'):
             self.monitor_thread.join(timeout=1.0)
-        GPIO.cleanup([ENCODER_CLK, ENCODER_DT, ENCODER_SW, VOLUME_SAVE_PIN])
+        GPIO.cleanup([ENCODER_CLK, ENCODER_DT, ENCODER_SW])
     
     def debug_output(self):
         """Debug output thread"""
@@ -187,7 +187,6 @@ class VolumeEncoder:
                 print(f"CLK State: {GPIO.input(ENCODER_CLK)}")
                 print(f"DT State: {GPIO.input(ENCODER_DT)}")
                 print(f"Switch State: {GPIO.input(ENCODER_SW)}")
-                print(f"Save Button State: {GPIO.input(VOLUME_SAVE_PIN)}")
             sleep(DEBUG_REFRESH_RATE)
     
     def _save_volume(self):
@@ -203,7 +202,7 @@ class VolumeEncoder:
             # Update config.py
             self._update_config_file()
             
-            print(f"Volume setting saved: {self.position}% ({self.volume:.2f})")
+            print(f"✓ Volume saved: {self.position}% ({self.volume:.2f})")
                 
         except Exception as e:
             print(f"Error saving volume: {e}")
