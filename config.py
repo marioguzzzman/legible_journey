@@ -1,11 +1,26 @@
 ### WHEEL_METER.PY
 
-PIN = 17 # The GPIO pin used for the sensor's digital output
+PIN = 17 # The GPIO pin used for the main wheel sensor's digital output
+PEDAL_PIN1 = 27 # First pedal sensor pin
+PEDAL_PIN2 = 22 # Second pedal sensor pin
+PEDAL_SENSOR_DISTANCE = 0.05 # Distance between pedal sensors in meters
+MOVEMENT_TIMEOUT = 2 # Time in seconds after which wheel is considered stopped
+MIN_SPEED = 0.5 # Minimum speed in km/h to consider wheel moving
+
 BOUNCE_TIME = 0.005 # The time span during which the sensor ingores inputs after a trigger (necessary)
 DEFAULT_DIAMETER = 622 # The default diameter of the wheel (in millimeters)
 PERIOD = 2 # The duration between each measuring (in seconds)
 USE_AVG_SPEED = False # Whether to use the average speed instead of the direct speed
 AVG_SMOOTHNESS = 5 # The amount of stored previous speed (used to compute a rolling average)
+
+# Milestone settings
+MILESTONE_TIME = 1 * 60  # Time in seconds (5 minutes) to count as one milestone
+MILESTONE_NOTIFICATION = 3  # Number of milestones needed to trigger a mark
+MILESTONE_DEBUG = True  # Show milestone progress in debug mode
+
+# Debug settings
+DEBUG_MODE = False # Set to True to see detailed sensor information
+DEBUG_REFRESH_RATE = 0.5 # How often to update debug information (seconds)
 
 ### LEGIBLE.PY
 
