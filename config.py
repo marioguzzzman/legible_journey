@@ -55,3 +55,7 @@ FADE_MS = 1000 # The fade-in effect (in milliseconds) when a track (re)starts
 MAX_SPEED = 50 # The maximum speed (in km/h) used to make interpolations between tracks
 LERP_SPEED = 0.05 # The speed at which the volume changes
 MONITOR_VOLUMES = False # Not recommended, because it takes ressources that are needed for continuous audio. Only use for testing purposes.
+
+# Volume settings
+DEFAULT_MASTER_VOLUME = 0.5  # Default master volume level
+MASTER_VOLUME = 0.5  # Current master volume level (will be updated by encoder)

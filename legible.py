@@ -60,11 +60,10 @@ def pygame_loop():
 
         for name, channel in channels.items():
             current_volumes[name] += (target_volumes[name] - current_volumes[name]) * LERP_SPEED
-            # Apply master volume
+            # Apply master volume from encoder
             final_volume = current_volumes[name] * volume_control.volume
             channel.set_volume(final_volume)
             
-            # Check if volume changed significantly
             if abs(final_volume - last_volumes[name]) > 0.1:
                 led.blink_audio_change()
             last_volumes[name] = final_volume
