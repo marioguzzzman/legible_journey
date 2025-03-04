@@ -108,7 +108,8 @@ class VolumeEncoder:
             self.sw = Button(ENCODER_SW)
             self.save_button = Button(VOLUME_SAVE_PIN)
             
-            self._volume = self._load_volume()
+            # Initialize position counter (0-100) and convert to volume
+            self._position = int(self._load_volume() * 100)
             self.clk_last_state = self.clk.value
             
             self.clk.when_pressed = self._check_rotation
@@ -128,11 +129,72 @@ class VolumeEncoder:
             self.cleanup()
             raise
     
+    @property
+    def position(self):
+        """Get current position (0-100)"""
+        return self._position
+    
+    @position.setter
+    def position(self, value):
+        """Set position with bounds checking"""
+        self._position = max(0, min(100, value))
+    
+    @property
+    def volume(self):
+        """Convert position (0-100) to volume (0.0-1.0)"""
+        return self.position / 100.0
+    
+    def _check_rotation(self):
+        clk_state = self.clk.value
+        dt_state = self.dt.value
+        
+        if clk_state != self.clk_last_state:
+            if dt_state != clk_state:
+                # Clockwise, increase by 5
+                self.position = self.position + 5
+            else:
+                # Counter-clockwise, decrease by 5
+                self.position = self.position - 5
+            print(f"Position: {self.position}% | Volume: {self.volume:.2f}")
+        
+        self.clk_last_state = clk_state
+    
+    def _save_volume(self):
+        """Save volume to both JSON and config file"""
+        try:
+            # Save to JSON for persistence
+            with open('volume_setting.json', 'w') as f:
+                json.dump({
+                    'master_volume': self.volume,
+                    'position': self.position
+                }, f)
+            
+            # Update config.py
+            self._update_config_file()
+            
+            print(f"Volume setting saved: {self.position}% ({self.volume:.2f})")
+                
+        except Exception as e:
+            print(f"Error saving volume: {e}")
+    
+    def _load_volume(self):
+        """Load volume from JSON file or use default"""
+        try:
+            with open('volume_setting.json', 'r') as f:
+                data = json.load(f)
+                if 'position' in data:
+                    self._position = data['position']
+                    return self.volume
+                return data.get('master_volume', DEFAULT_MASTER_VOLUME)
+        except:
+            return DEFAULT_MASTER_VOLUME
+    
     def debug_output(self):
         while True:
             if DEBUG_MODE and DEBUG_VOLUME:
                 print("\n=== Volume Encoder Debug ===")
-                print(f"Current Volume: {self.volume:.2f}")
+                print(f"Position: {self.position}%")
+                print(f"Volume: {self.volume:.2f}")
                 print(f"CLK State: {self.clk.value}")
                 print(f"DT State: {self.dt.value}")
                 print(f"Switch State: {self.sw.value}")
@@ -149,51 +211,6 @@ class VolumeEncoder:
             self.sw.close()
         if hasattr(self, 'save_button'):
             self.save_button.close()
-    
-    @property
-    def volume(self):
-        return self._volume
-    
-    @volume.setter
-    def volume(self, value):
-        self._volume = max(0.0, min(1.0, value))
-    
-    def _check_rotation(self):
-        clk_state = self.clk.value
-        dt_state = self.dt.value
-        
-        if clk_state != self.clk_last_state:
-            if dt_state != clk_state:
-                self.volume = self.volume + 0.05
-            else:
-                self.volume = self.volume - 0.05
-            print(f"Volume adjusted to: {self.volume:.2f}")
-        
-        self.clk_last_state = clk_state
-    
-    def _save_volume(self):
-        """Save volume to both JSON and config file"""
-        try:
-            # Save to JSON for persistence
-            with open('volume_setting.json', 'w') as f:
-                json.dump({'master_volume': self.volume}, f)
-            
-            # Update config.py
-            self._update_config_file()
-            
-            print(f"Volume setting saved: {self.volume:.2f}")
-                
-        except Exception as e:
-            print(f"Error saving volume: {e}")
-    
-    def _load_volume(self):
-        """Load volume from JSON file or use default"""
-        try:
-            with open('volume_setting.json', 'r') as f:
-                data = json.load(f)
-                return data.get('master_volume', DEFAULT_MASTER_VOLUME)
-        except:
-            return DEFAULT_MASTER_VOLUME
     
     def _update_config_file(self):
         """Update the config.py file with new master volume"""
