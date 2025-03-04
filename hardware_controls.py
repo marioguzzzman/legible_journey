@@ -221,9 +221,17 @@ class VolumeEncoder:
     
     def _update_config_file(self):
         """Update the config.py file with new master volume"""
-        config_path = os.path.join(os.path.dirname(__file__), 'config.py')
-        
         try:
+            # Get absolute path to config.py
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            config_path = os.path.join(current_dir, 'config.py')
+            
+            print(f"Attempting to update config file at: {config_path}")  # Debug line
+            
+            if not os.path.exists(config_path):
+                print(f"Error: Config file not found at {config_path}")
+                return
+            
             # Read all lines from config file
             with open(config_path, 'r') as f:
                 lines = f.readlines()
@@ -236,27 +244,30 @@ class VolumeEncoder:
                 if line.strip().startswith('DEFAULT_MASTER_VOLUME'):
                     lines[i] = f"DEFAULT_MASTER_VOLUME = {self.volume:.2f}  # Default master volume level\n"
                     default_found = True
+                    print(f"Updated DEFAULT_MASTER_VOLUME to {self.volume:.2f}")  # Debug line
                 elif line.strip().startswith('MASTER_VOLUME'):
                     lines[i] = f"MASTER_VOLUME = {self.volume:.2f}  # Current master volume level\n"
                     current_found = True
-                
-                if default_found and current_found:
-                    break
+                    print(f"Updated MASTER_VOLUME to {self.volume:.2f}")  # Debug line
             
             # Add values if not found
             if not default_found:
                 lines.append(f"\nDEFAULT_MASTER_VOLUME = {self.volume:.2f}  # Default master volume level\n")
+                print("Added DEFAULT_MASTER_VOLUME line")  # Debug line
             if not current_found:
                 lines.append(f"MASTER_VOLUME = {self.volume:.2f}  # Current master volume level\n")
+                print("Added MASTER_VOLUME line")  # Debug line
             
             # Write back to config file
             with open(config_path, 'w') as f:
                 f.writelines(lines)
             
-            print(f"Config file updated with volume: {self.volume:.2f}")
+            print(f"Successfully updated config file with volume: {self.volume:.2f}")
                 
         except Exception as e:
             print(f"Error updating config file: {e}")
+            import traceback
+            traceback.print_exc()  # Print full error traceback
     
     def _blink_confirmation(self):
         """Blink green LED briefly to confirm save"""
