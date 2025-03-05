@@ -14,7 +14,7 @@ from hardware_controls import VolumeEncoder
 
 pygame.mixer.init()
 
-folder_path = "/home/djarak/LEGIBLE/tracks/"
+folder_path = "/home/djarak/legible_journey/Audios/"
 ext = ".mp3"
 
 # Channel initialization
