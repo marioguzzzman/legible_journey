@@ -8,7 +8,7 @@ print(Style.RESET_ALL)
 
 import time
 from wheel_meter import main_wheel, pedal
-from sound_behavior import SoundManager, Zone
+from sound_behavior import SoundManager
 from hardware_controls import VolumeEncoder
 from config import *
 
