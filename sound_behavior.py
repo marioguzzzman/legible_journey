@@ -50,7 +50,12 @@ class SoundManager:
         self.s2_channel.play(self.s2, loops=-1)
         self.s3_channel.play(self.s3, loops=-1)
         
-        self.current_volumes = {"velo_lent": 0.0, "velo_moyen": 0.0, "velo_rapide": 0.0}
+        # Initialize current volumes with correct keys
+        self.current_volumes = {
+            "s1": 0.0,
+            "s2": 0.0,
+            "s3": 0.0
+        }
         self.mute_all()
         
         # Zone configurations
