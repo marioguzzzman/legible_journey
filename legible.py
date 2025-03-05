@@ -38,40 +38,40 @@ def main():
                     last_active_time = current_time
                 total_active_time += current_time - last_active_time
                 
-                # Example volume controls based on speed:
-                
-                # s1 increases with speed
+                # Volume controls based on speed:
+                # s1: Linear increase with speed
                 s1_vol = min(100, current_speed * 10)  # 10% volume per km/h
                 sound_manager.play("s1", s1_vol)
                 
-                # s2 peaks at medium speed
+                # s2: Peak at medium speed (25 km/h)
                 s2_vol = min(100, max(0, 100 - abs(25 - current_speed) * 4))
                 sound_manager.play("s2", s2_vol)
                 
-                # s3 fades out as speed increases
+                # s3: Also peaks at medium speed but different curve
                 s3_vol = min(100, max(0, 100 - abs(25 - current_speed) * 5))
-                sound_manager.play("s3", s2_vol)
+                sound_manager.play("s3", s3_vol)  # Fixed: was using s2_vol
                 
-                # s4 only plays at high speeds
+                # s4: Only at high speeds
                 if current_speed > 30:
                     s4_vol = min(100, (current_speed - 30) * 5)
                     sound_manager.play("s4", s4_vol)
                 else:
                     sound_manager.play("s4", 0)
             else:
-                last_active_time = 0  # Reset last active time when stopped
+                last_active_time = 0
                 sound_manager.stop_all()
                 sound_manager.start_all()  # Restart muted
             
             # Store current time for next loop
             last_active_time = current_time
             
-            # Apply master volume
-            sound_manager.set_master_volume(volume_control.volume)
+            # Set master volume from encoder (0-100)
+            sound_manager.set_master_volume(volume_control.volume * 100)  # Fixed: scale to 0-100
             
             if MONITOR_VOLUMES or (DEBUG_MODE and DEBUG_SOUND):
                 print(f"\nSpeed: {current_speed:.1f} km/h")
                 print(f"Active Time: {total_active_time:.1f}s ({total_active_time/60:.1f}min)")
+                print(f"Master Volume: {volume_control.volume*100:.0f}%")
                 if DEBUG_MODE and DEBUG_SOUND:
                     sound_manager.print_sound_status()
                 else:
