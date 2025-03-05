@@ -106,12 +106,27 @@ def main():
                         sound_manager.stop_all()
                         sound_manager.start_all()
                     
-                    base_vol = 60
-                    speed_boost = min(40, current_speed * 2)  # Increased speed effect
-                    volume = min(100, base_vol + speed_boost)
-                    sound_manager.play("s4", volume)
-                    if DEBUG_MODE:
-                        print(f"Playing s4 at {volume:.0f}% (base: {base_vol}%, boost: {speed_boost:.0f}%)")
+                    if not is_moving:
+                        if stop_counter is None:  # Just stopped
+                            stop_counter = current_time
+                            print("\n Wheel stopped - muting sound (60s timeout)")
+                            sound_manager.play("s4", 0)  # Mute but don't stop
+                        elif current_time - stop_counter >= 60:  # 60s timeout
+                            print("\n Wheel stopped for 60s - resetting sequence")
+                            sound_manager.stop_all()
+                            start_time = None
+                            current_frame = 0
+                            stop_counter = None
+                            first_frame_elapsed = 0
+                            continue
+                    else:  # Wheel is moving
+                        stop_counter = None  # Reset stop counter
+                        base_vol = 60
+                        speed_boost = min(40, current_speed * 2)
+                        volume = min(100, base_vol + speed_boost)
+                        sound_manager.play("s4", volume)
+                        if DEBUG_MODE:
+                            print(f"Playing s4 at {volume:.0f}% (base: {base_vol}%, boost: {speed_boost:.0f}%)")
 
                 # Time Frame 3 (2m30s-4m30s): s5 with variable volume
                 elif elapsed_time <= 270:
