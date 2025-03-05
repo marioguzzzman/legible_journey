@@ -38,10 +38,11 @@ DEBUG_MODE = True  # Master debug switch
 DEBUG_REFRESH_RATE = 0.5  # How often to update debug information (seconds)
 
 # Component debug flags (only work when DEBUG_MODE is True)
-DEBUG_MAIN_WHEEL = False
+DEBUG_MAIN_WHEEL = True
 DEBUG_PEDAL_WHEEL = False
 DEBUG_VOLUME = True
-DEBUG_LED = True
+DEBUG_LED = False
+DEBUG_SOUND = True  # Add this line to monitor sound status
 
 ### LEGIBLE.PY
 

@@ -49,8 +49,29 @@ class SoundManager:
                 (volume/100.0) - self.volumes[sound_name]
             ) * LERP_SPEED
             self.channels[sound_name].set_volume(self.volumes[sound_name] * MASTER_VOLUME)
+            
+            if DEBUG_MODE and DEBUG_SOUND:
+                channel = self.channels[sound_name]
+                print(f"\n=== {sound_name} Status ===")
+                print(f"Playing: {'Yes' if channel.get_busy() else 'No'}")
+                print(f"Target Volume: {volume:.0f}%")
+                print(f"Current Volume: {self.volumes[sound_name]*100:.0f}%")
+                print(f"Actual Volume: {channel.get_volume()*100:.0f}%")
     
     def set_master_volume(self, volume: float):
         """Set master volume (0-100)"""
         global MASTER_VOLUME
         MASTER_VOLUME = volume/100.0 
+
+    def print_sound_status(self):
+        """Print detailed status of all sounds"""
+        if DEBUG_MODE and DEBUG_SOUND:
+            print("\n=== Sound System Status ===")
+            print(f"Master Volume: {MASTER_VOLUME*100:.0f}%")
+            print("\nActive Channels:")
+            for name, channel in self.channels.items():
+                if channel.get_busy():
+                    print(f"\n{name}:")
+                    print(f"  Playing: Yes")
+                    print(f"  Target Volume: {self.volumes[name]*100:.0f}%")
+                    print(f"  Actual Volume: {channel.get_volume()*100:.0f}%") 

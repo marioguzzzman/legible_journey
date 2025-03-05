@@ -22,12 +22,22 @@ def main():
     print("\nStarting sound demo...")
     print("Press Ctrl+C to exit")
     
+    start_time = time.time()
+    total_active_time = 0
+    last_active_time = 0
+    
     try:
         while True:
             current_speed = main_wheel.speed
             is_moving = main_wheel.is_moving or pedal.is_moving
+            current_time = time.time()
             
+            # Update active time only when moving
             if is_moving:
+                if last_active_time == 0:  # Just started moving
+                    last_active_time = current_time
+                total_active_time += current_time - last_active_time
+                
                 # Example volume controls based on speed:
                 
                 # s1 increases with speed
@@ -39,8 +49,8 @@ def main():
                 sound_manager.play("s2", s2_vol)
                 
                 # s3 fades out as speed increases
-                s3_vol = max(0, 100 - current_speed * 5)  # Starts at 100%, drops 5% per km/h
-                sound_manager.play("s3", s3_vol)
+                s3_vol = in(100, max(0, 100 - abs(25 - current_speed) * 5))
+                sound_manager.play("s3", s2_vol)
                 
                 # s4 only plays at high speeds
                 if current_speed > 30:
@@ -49,23 +59,31 @@ def main():
                 else:
                     sound_manager.play("s4", 0)
             else:
-                # Stop all sounds when not moving
+                last_active_time = 0  # Reset last active time when stopped
                 sound_manager.stop_all()
                 sound_manager.start_all()  # Restart muted
+            
+            # Store current time for next loop
+            last_active_time = current_time
             
             # Apply master volume
             sound_manager.set_master_volume(volume_control.volume)
             
-            if MONITOR_VOLUMES:
+            if MONITOR_VOLUMES or (DEBUG_MODE and DEBUG_SOUND):
                 print(f"\nSpeed: {current_speed:.1f} km/h")
-                print("Volumes:")
-                for name, vol in sound_manager.volumes.items():
-                    print(f"- {name}: {vol*100:.0f}%")
+                print(f"Active Time: {total_active_time:.1f}s ({total_active_time/60:.1f}min)")
+                if DEBUG_MODE and DEBUG_SOUND:
+                    sound_manager.print_sound_status()
+                else:
+                    print("Volumes:")
+                    for name, vol in sound_manager.volumes.items():
+                        print(f"- {name}: {vol*100:.0f}%")
             
             time.sleep(0.1)
             
     except KeyboardInterrupt:
         print("\nStopping...")
+        print(f"Total Active Time: {total_active_time:.1f}s ({total_active_time/60:.1f}min)")
         sound_manager.stop_all()
         pygame.quit()
 
