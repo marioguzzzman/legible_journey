@@ -60,16 +60,16 @@ class SoundManager:
                 velo_rapide_behavior="Muted"
             ),
             Zone.MAIN: ZoneConfig(
-                duration=270,  # 4.5 minutes (until milestone)
-               """  abstract_behavior="Volume follows speed curve",
-                deconstr_behavior="Fades in at medium speeds",
-                narrative_behavior="Loud at start, fades with speed" """
+                # duration=270,  # 4.5 minutes (until milestone)
+                # abstract_behavior="Volume follows speed curve",
+                # deconstr_behavior="Fades in at medium speeds",
+                # narrative_behavior="Loud at start, fades with speed"
             ),
             Zone.MILESTONE: ZoneConfig(
-                duration=None,  # Continues until stop
-                """ abstract_behavior="Reduced volume",
-                deconstr_behavior="Main focus - full volume",
-                narrative_behavior="Subtle background" """
+                # duration=None,  # Continues until stop
+                # abstract_behavior="Reduced volume",
+                # deconstr_behavior="Main focus - full volume",
+                # narrative_behavior="Subtle background"
             )
         }
         
