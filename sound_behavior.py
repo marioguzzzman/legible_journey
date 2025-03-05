@@ -14,15 +14,15 @@ class Zone(Enum):
 @dataclass
 class ZoneConfig:
     duration: float  # How long this zone lasts (in seconds), None for infinite
-    abstract_behavior: str  # Volume behavior description
-    deconstr_behavior: str  # Volume behavior description
-    narrative_behavior: str  # Volume behavior description
+    s1: str  # S1 behavior description
+    s2: str  # S2 behavior description
+    s3: str  # S3 behavior description
     
     def __str__(self):
         return f"""Zone Duration: {self.duration if self.duration else 'infinite'} seconds
-- s1: {self.abstract_behavior}
-- s2: {self.deconstr_behavior}
-- s3: {self.narrative_behavior}"""
+- s1: {self.s1}
+- s2: {self.s2}
+- s3: {self.s3}"""
 
 
 class SoundManager:
@@ -59,16 +59,16 @@ class SoundManager:
                 s3="Muted"
             ),
             Zone.MAIN: ZoneConfig(
-                # duration=270,  # 4.5 minutes (until milestone)
-                # abstract_behavior="Volume follows speed curve",
-                # deconstr_behavior="Fades in at medium speeds",
-                # narrative_behavior="Loud at start, fades with speed"
+                duration=270,
+                s1="Volume follows speed curve",
+                s2="Fades in at medium speeds",
+                s3="Loud at start, fades with speed"
             ),
             Zone.MILESTONE: ZoneConfig(
-                # duration=None,  # Continues until stop
-                # abstract_behavior="Reduced volume",
-                # deconstr_behavior="Main focus - full volume",
-                # narrative_behavior="Subtle background"
+                duration=None,
+                s1="Reduced volume",
+                s2="Main focus - full volume",
+                s3="Subtle background"
             )
         }
         
