@@ -49,7 +49,7 @@ def main():
                 sound_manager.play("s2", s2_vol)
                 
                 # s3 fades out as speed increases
-                s3_vol = in(100, max(0, 100 - abs(25 - current_speed) * 5))
+                s3_vol = min(100, max(0, 100 - abs(25 - current_speed) * 5))
                 sound_manager.play("s3", s2_vol)
                 
                 # s4 only plays at high speeds
