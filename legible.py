@@ -26,6 +26,7 @@ def main():
     last_active_time = time.time()
     current_frame = 0
     stop_counter = None
+    first_frame_elapsed = 0
     
     try:
         while True:
@@ -43,32 +44,30 @@ def main():
 
                 # Handle stopping logic
                 if not is_moving:
-                    if current_frame == 0:  # In Time Frame 1
-                        print("\nBike stopped during Time Frame 1 - resetting")
-                        sound_manager.stop_all()
-                        start_time = None
-                        current_frame = 0
-                        continue
-                    elif stop_counter is None:  # Start 30s countdown
-                        stop_counter = current_time
-                    elif current_time - stop_counter >= 30:  # Reset after 30s stopped
-                        print("\nBike stopped for 30s - resetting everything")
-                        sound_manager.stop_all()
-                        start_time = None
-                        current_frame = 0
-                        stop_counter = None
-                        continue
+                    if current_frame > 0:  # After Time Frame 1
+                        if stop_counter is None:  # Start 30s countdown
+                            stop_counter = current_time
+                        elif current_time - stop_counter >= 30:  # Reset after 30s stopped
+                            print("\nBike stopped for 30s - resetting everything")
+                            sound_manager.stop_all()
+                            start_time = None
+                            current_frame = 0
+                            stop_counter = None
+                            first_frame_elapsed = 0
+                            continue
                 else:
                     stop_counter = None  # Reset stop counter if moving again
 
                 # Time Frame 1 (0-30s): s1, s2, s3 with increasing volumes
-                if elapsed_time <= 30:
+                if first_frame_elapsed <= 30:
                     current_frame = 0
+                    if is_moving:
+                        first_frame_elapsed += 0.1  # Only count time when moving
                     volume = min(100, current_speed * 10)  # 10% per km/h
                     # Stagger the sounds within the 30s
-                    if elapsed_time <= 10:
+                    if first_frame_elapsed <= 10:
                         sound_manager.play("s1", volume)
-                    elif elapsed_time <= 20:
+                    elif first_frame_elapsed <= 20:
                         sound_manager.play("s2", volume)
                     else:
                         sound_manager.play("s3", volume)
@@ -100,6 +99,7 @@ def main():
                     sound_manager.stop_all()
                     start_time = None
                     current_frame = 0
+                    first_frame_elapsed = 0
 
             time.sleep(0.1)
             
