@@ -19,12 +19,11 @@ class ZoneConfig:
     narrative_behavior: str  # Volume behavior description
     
     def __str__(self):
-        return f"""
-Zone Duration: {self.duration if self.duration else 'infinite'} seconds
-- Abstract: {self.abstract_behavior}
-- Deconstr: {self.deconstr_behavior}
-- Narrative: {self.narrative_behavior}
-"""
+        return f"""Zone Duration: {self.duration if self.duration else 'infinite'} seconds
+- s1: {self.abstract_behavior}
+- s2: {self.deconstr_behavior}
+- s3: {self.narrative_behavior}"""
+
 
 class SoundManager:
     def __init__(self):
