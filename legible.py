@@ -48,18 +48,18 @@ def main():
                     sound_manager.play_s2(0)
                     sound_manager.play_s3(0)
                 
-                elif current_zone == Zone.MAIN:
+                #elif current_zone == Zone.MAIN:
                     # Speed-based mix
-            #  """     """    abstract_vol = min(100, current_speed * 10)
-            #         sound_manager.play_abstract(abstract_vol)
+                    # abstract_vol = min(100, current_speed * 10)
+                    # sound_manager.play_abstract(abstract_vol)
                     
-            #         deconstr_vol = min(100, max(0, current_speed * 5))
-            #         sound_manager.play_deconstr(deconstr_vol)
+                    # deconstr_vol = min(100, max(0, current_speed * 5))
+                    # sound_manager.play_deconstr(deconstr_vol)
                     
-            #         narrative_vol = max(0, 100 - (current_speed * 10))
-            #         sound_manager.play_narrative(narrative_vol) """ """
+                    # narrative_vol = max(0, 100 - (current_speed * 10))
+                    # sound_manager.play_narrative(narrative_vol) 
                 
-                elif current_zone == Zone.MILESTONE:
+                #elif current_zone == Zone.MILESTONE:
                     # sound_manager.play_abstract(30)
                     # sound_manager.play_deconstr(100)
                     # sound_manager.play_narrative(20)
