@@ -79,8 +79,8 @@ def main():
                         print("\nEntering Time Frame 2")
                         sound_manager.stop_all()
                     
-                    base_vol = 40
-                    speed_boost = min(20, current_speed * 2)  # 2% per km/h up to 20%
+                    base_vol = 60
+                    speed_boost = min(20, current_speed * 20)  # 2% per km/h up to 20%
                     volume = min(90, base_vol + speed_boost)
                     sound_manager.play("s4", volume)
 
@@ -91,7 +91,7 @@ def main():
                         print("\nEntering Time Frame 3")
                         sound_manager.stop_all()
                     
-                    volume = max(40, min(100, 60 + current_speed * 2))  # Base 60%, vary with speed
+                    volume = max(40, min(100, 60 + current_speed * 20))  # Base 60%, vary with speed
                     sound_manager.play("s5", volume)
 
                 else:  # After 4m30s, reset everything
