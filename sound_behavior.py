@@ -32,7 +32,7 @@ class SoundManager:
             pygame.mixer.init()
         
         # Load the three tracks
-        self.tracks_path = "/home/djarak/LEGIBLE/tracks/"
+        self.tracks_path = "/home/djarak/LEGIBLE/legible_journey/tracks/"
         self.abstract = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_abstraction.mp3"))
         self.deconstr = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_deconstruite.mp3"))
         self.narrative = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_narrative.mp3"))
