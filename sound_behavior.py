@@ -34,19 +34,19 @@ class SoundManager:
         # Load the three tracks
         self.tracks_path = "/home/djarak/LEGIBLE/Audios/"
 
-        self.t1_velo_lent = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S1 velo lent.mp3"))
-        self.t1_velo_moyen = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S2 velo moyen.mp3"))
-        self.t1_velo_rapide = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S3 velo rapide.mp3"))
+        self.s1 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S1.mp3"))
+        self.s2 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S2.mp3"))
+        self.s3 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S3.mp3"))
          
         # Create channels
-        self.t1_velo_lent_channel = pygame.mixer.Channel(0)
-        self.t1_velo_moyen_channel = pygame.mixer.Channel(1)
-        self.t1_velo_rapide_channel = pygame.mixer.Channel(2)
+        self.s1_channel = pygame.mixer.Channel(0)
+        self.s2_channel = pygame.mixer.Channel(1)
+        self.s3_channel = pygame.mixer.Channel(2)
         
         # Start playing all tracks (muted)
-        self.t1_velo_lent_channel.play(self.t1_velo_lent, loops=-1)
-        self.t1_velo_moyen_channel.play(self.t1_velo_moyen, loops=-1)
-        self.t1_velo_rapide_channel.play(self.t1_velo_rapide, loops=-1)
+        self.s1_channel.play(self.s1, loops=-1)
+        self.s2_channel.play(self.s2, loops=-1)
+        self.s3_channel.play(self.s3, loops=-1)
         
         self.current_volumes = {"velo_lent": 0.0, "velo_moyen": 0.0, "velo_rapide": 0.0}
         self.mute_all()
@@ -55,9 +55,9 @@ class SoundManager:
         self.zones: Dict[Zone, ZoneConfig] = {
             Zone.INTRO: ZoneConfig(
                 duration=30,
-                velo_lent_behavior="Starts at 0% volume, increases with speed",
-                velo_moyen_behavior="Muted",
-                velo_rapide_behavior="Muted"
+                s1="Starts at 0% volume, increases with speed",
+                s2="Muted",
+                s3="Muted"
             ),
             Zone.MAIN: ZoneConfig(
                 # duration=270,  # 4.5 minutes (until milestone)
