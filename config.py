@@ -1,8 +1,8 @@
 ### WHEEL_METER.PY
 
 # Wheel Sensors
-PIN = 17          # GPIO17 (pin 11) - Main wheel sensor
-PEDAL_PIN1 = 27   # GPIO27 (pin 13) - First pedal sensor
+PIN = 27          # GPIO27 (pin 11) - Main wheel sensor
+#PEDAL_PIN1 = 27   # GPIO27 (pin 13) - First pedal sensor
 PEDAL_PIN2 = 22   # GPIO22 (pin 15) - Second pedal sensor
 
 # Volume Encoder Pins
