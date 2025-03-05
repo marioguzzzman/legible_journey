@@ -49,7 +49,7 @@ def main():
             # Initialize start time when bike starts moving
             if is_moving and start_time is None:
                 start_time = current_time
-                print("\n🚲 Bike started moving - beginning Time Frame 1")
+                print("\n Bike started moving - beginning Time Frame 1")
 
             if start_time is not None:
                 elapsed_time = current_time - start_time
@@ -59,9 +59,9 @@ def main():
                     if current_frame > 0:  # After Time Frame 1
                         if stop_counter is None:  # Start 30s countdown
                             stop_counter = current_time
-                            print("\n⚠️ Bike stopped - 30s countdown started")
+                            print("\n Bike stopped - 30s countdown started")
                         elif current_time - stop_counter >= 30:  # Reset after 30s stopped
-                            print("\n🔄 Bike stopped for 30s - resetting everything")
+                            print("\n Bike stopped for 30s - resetting everything")
                             sound_manager.stop_all()
                             start_time = None
                             current_frame = 0
@@ -76,7 +76,7 @@ def main():
                 if first_frame_elapsed <= 30:
                     if current_frame != 0:
                         current_frame = 0
-                        print("\n🎵 Time Frame 1: Introducing sounds gradually")
+                        print("\n Time Frame 1: Introducing sounds gradually")
                     if is_moving:
                         first_frame_elapsed += 0.1  # Only count time when moving
                     volume = min(100, current_speed * 10)  # 10% per km/h
@@ -102,7 +102,7 @@ def main():
                 elif elapsed_time <= 150:
                     if current_frame != 1:
                         current_frame = 1
-                        print("\n🎵 Time Frame 2: Speed-boosted s4")
+                        print("\n Time Frame 2: Speed-boosted s4")
                         sound_manager.stop_all()
                         sound_manager.start_all()
                     
@@ -117,7 +117,7 @@ def main():
                 elif elapsed_time <= 270:
                     if current_frame != 2:
                         current_frame = 2
-                        print("\n🎵 Time Frame 3: Variable s5")
+                        print("\n Time Frame 3: Variable s5")
                         sound_manager.stop_all()
                         sound_manager.start_all()
                     
@@ -127,7 +127,7 @@ def main():
                         print(f"Playing s5 at {volume:.0f}%")
 
                 else:  # After 4m30s, reset everything
-                    print("\n✨ Sequence complete - resetting")
+                    print("\n Sequence complete - resetting")
                     sound_manager.stop_all()
                     start_time = None
                     current_frame = 0
