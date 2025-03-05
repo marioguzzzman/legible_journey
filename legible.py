@@ -41,10 +41,12 @@ def main():
                 # Volume controls based on speed:
                 # s1: Linear increase with speed
                 s1_vol = min(100, current_speed * 10)  # 10% volume per km/h
+                if s1_vol > 70:
+                    s1_vol = max(0, 70 - (current_speed - 70) * 10)  # Start to decrease when it reaches 70%
                 sound_manager.play("s1", s1_vol)
                 
                 # s2: Peak at medium speed (25 km/h)
-                s2_vol = min(100, max(0, 100 - abs(25 - current_speed) * 4))
+                s2_vol = min(100, max(0, 100 - abs(25 - current_speed) * 10))
                 sound_manager.play("s2", s2_vol)
                 
                 # s3: Also peaks at medium speed but different curve
