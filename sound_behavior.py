@@ -32,7 +32,7 @@ class SoundManager:
             pygame.mixer.init()
         
         # Load the three tracks
-        self.tracks_path = "/home/djarak/LEGIBLE/Audios/"
+        self.tracks_path = "/home/djarak//legible_journey/Audios/"
 
         self.s1 = pygame.mixer.Sound(os.path.join(self.tracks_path, "s1.mp3"))
         self.s2 = pygame.mixer.Sound(os.path.join(self.tracks_path, "s2.mp3"))
