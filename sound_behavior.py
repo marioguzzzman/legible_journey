@@ -77,24 +77,24 @@ class SoundManager:
         self.zone_start_time = 0
         self.total_active_time = 0
     
-    def play_abstract(self, target_volume: float):
+    def play_s1(self, target_volume: float):
         """Play abstract track at specified volume (0-100) with smooth transition"""
-        self.current_volumes["abstract"] += (
-            (target_volume/100.0) - self.current_volumes["abstract"]
+        self.current_volumes["s1"] += (
+            (target_volume/100.0) - self.current_volumes["s1"]
         ) * LERP_SPEED
         self.abstract_channel.set_volume(self.current_volumes["abstract"] * MASTER_VOLUME)
     
-    def play_deconstr(self, target_volume: float):
+    def play_s2(self, target_volume: float):
         """Play deconstructed track at specified volume (0-100) with smooth transition"""
-        self.current_volumes["deconstr"] += (
-            (target_volume/100.0) - self.current_volumes["deconstr"]
+        self.current_volumes["s2"] += (
+            (target_volume/100.0) - self.current_volumes["s2"]
         ) * LERP_SPEED
         self.deconstr_channel.set_volume(self.current_volumes["deconstr"] * MASTER_VOLUME)
     
-    def play_narrative(self, target_volume: float):
+    def play_s3(self, target_volume: float):
         """Play narrative track at specified volume (0-100) with smooth transition"""
-        self.current_volumes["narrative"] += (
-            (target_volume/100.0) - self.current_volumes["narrative"]
+        self.current_volumes["s3"] += (
+            (target_volume/100.0) - self.current_volumes["s3"]
         ) * LERP_SPEED
         self.narrative_channel.set_volume(self.current_volumes["narrative"] * MASTER_VOLUME)
     
@@ -102,9 +102,9 @@ class SoundManager:
         """Smoothly mute all tracks"""
         for name in self.current_volumes:
             self.current_volumes[name] = 0.0
-        self.abstract_channel.set_volume(0)
-        self.deconstr_channel.set_volume(0)
-        self.narrative_channel.set_volume(0)
+        self.s1_channel.set_volume(0)
+        self.s2_channel.set_volume(0)
+        self.s3_channel.set_volume(0)
     
     def set_master_volume(self, volume: float):
         """Set master volume (0-100)"""
@@ -114,15 +114,15 @@ class SoundManager:
         """Update volumes based on speed"""
         # Calculate target volumes using curves from config
         target_volumes = {
-            "abstract": self._interpolate_volume(speed, VOLUME_CURVES["abstract"]),
-            "deconstr": self._interpolate_volume(speed, VOLUME_CURVES["deconstr"]),
-            "narrative": self._interpolate_volume(speed, VOLUME_CURVES["narrative"])
+            "s1": self._interpolate_volume(speed, VOLUME_CURVES["abstract"]),
+            "s2": self._interpolate_volume(speed, VOLUME_CURVES["deconstr"]),
+            "s3": self._interpolate_volume(speed, VOLUME_CURVES["narrative"])
         }
         
         # Update volumes with LERP
-        self.abstract_channel.set_volume(target_volumes["abstract"] * MASTER_VOLUME)
-        self.deconstr_channel.set_volume(target_volumes["deconstr"] * MASTER_VOLUME)
-        self.narrative_channel.set_volume(target_volumes["narrative"] * MASTER_VOLUME)
+        self.s1_channel.set_volume(target_volumes["s1"] * MASTER_VOLUME)
+        self.s2_channel.set_volume(target_volumes["s2"] * MASTER_VOLUME)
+        self.s3_channel.set_volume(target_volumes["s3"] * MASTER_VOLUME)
     
     def _interpolate_volume(self, speed: float, curve: list) -> float:
         """Calculate volume based on speed using the curve"""
@@ -131,9 +131,9 @@ class SoundManager:
     
     def stop_all(self):
         """Stop all sounds"""
-        self.abstract_channel.stop()
-        self.deconstr_channel.stop()
-        self.narrative_channel.stop()
+        self.s1_channel.stop()
+        self.s2_channel.stop()
+        self.s3_channel.stop()
     
     def update_zone(self, is_moving: bool, speed: float, active_time: float):
         """Update zone and volumes based on movement, speed, and time"""
@@ -156,9 +156,9 @@ class SoundManager:
         if self.current_zone == Zone.INTRO:
             # Only abstract track, volume increases with speed
             abstract_vol = 50 + (speed * 5)  # Start at 50%, add 5% per km/h
-            self.play_abstract(abstract_vol)
-            self.play_deconstr(0)  # Muted
-            self.play_narrative(0)  # Muted
+            self.play_s1(abstract_vol)
+            self.play_s2(0)  # Muted
+            self.play_s3(0)  # Muted
             
         elif self.current_zone == Zone.MAIN:
             # All tracks active with speed-based mixing
