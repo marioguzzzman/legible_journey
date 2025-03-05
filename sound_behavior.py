@@ -34,9 +34,9 @@ class SoundManager:
         # Load the three tracks
         self.tracks_path = "/home/djarak/LEGIBLE/Audios/"
 
-        self.s1 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S1.mp3"))
-        self.s2 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S2.mp3"))
-        self.s3 = pygame.mixer.Sound(os.path.join(self.tracks_path, "S3.mp3"))
+        self.s1 = pygame.mixer.Sound(os.path.join(self.tracks_path, "s1.mp3"))
+        self.s2 = pygame.mixer.Sound(os.path.join(self.tracks_path, "s2.mp3"))
+        self.s3 = pygame.mixer.Sound(os.path.join(self.tracks_path, "s3.mp3"))
          
         # Create channels
         self.s1_channel = pygame.mixer.Channel(0)
