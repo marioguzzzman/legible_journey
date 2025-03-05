@@ -25,6 +25,7 @@ def main():
     start_time = time.time()
     total_active_time = 0
     last_active_time = 0
+    zone_2_reached = False
     
     try:
         while True:
@@ -41,21 +42,28 @@ def main():
                 # Volume controls based on speed:
                 # s1: Linear increase with speed
                 s1_vol = min(100, current_speed * 10)  # 10% volume per km/h
-                if s1_vol > 70:
-                    s1_vol = max(0, 70 - (current_speed - 70) * 10)  # Start to decrease when it reaches 70%
+                if zone_2_reached:
+                    s1_vol = max(0, s1_vol - 10)  # Decrease by 10% until reaching 0
                 sound_manager.play("s1", s1_vol)
                 
                 # s2: Peak at medium speed (25 km/h)
                 s2_vol = min(100, max(0, 100 - abs(25 - current_speed) * 10))
+                if zone_2_reached:
+                    s2_vol = max(0, s2_vol - 10)  # Decrease by 10% until reaching 0
                 sound_manager.play("s2", s2_vol)
                 
                 # s3: Also peaks at medium speed but different curve
                 s3_vol = min(100, max(0, 100 - abs(25 - current_speed) * 5))
+                if zone_2_reached:
+                    s3_vol = max(0, s3_vol - 10)  # Decrease by 10% until reaching 0
                 sound_manager.play("s3", s3_vol)  # Fixed: was using s2_vol
                 
                 # s4: Only at high speeds
-                if current_speed > 30:
-                    s4_vol = min(100, (current_speed - 30) * 5)
+                if total_active_time >= 60:  # 1 minute
+                    if not zone_2_reached:
+                        print("Reached Zone 2!")
+                        zone_2_reached = True
+                    s4_vol = min(100, (current_speed - 30) * 10)  # Increase by 10% continuously
                     sound_manager.play("s4", s4_vol)
                 else:
                     sound_manager.play("s4", 0)
