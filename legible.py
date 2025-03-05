@@ -16,12 +16,11 @@ def main():
     sound_manager = SoundManager()
     volume_control = VolumeEncoder()
     
+    # Start all sounds muted
+    sound_manager.start_all()
+    
     print("\nStarting sound demo...")
     print("Press Ctrl+C to exit")
-    
-    start_time = time.time()
-    active_time = 0
-    current_zone = Zone.INTRO
     
     try:
         while True:
@@ -29,56 +28,45 @@ def main():
             is_moving = main_wheel.is_moving or pedal.is_moving
             
             if is_moving:
-                active_time = time.time() - start_time
+                # Example volume controls based on speed:
                 
-                # Zone transitions
-                if current_zone == Zone.INTRO:
-                    if active_time >= 30 or current_speed >= 10:
-                        current_zone = Zone.MAIN
-                        print(f"Transitioning to MAIN zone (Time: {active_time:.1f}s, Speed: {current_speed:.1f}km/h)")
-                elif current_zone == Zone.MAIN and active_time >= 300:
-                    current_zone = Zone.MILESTONE
-                    print("Transitioning to MILESTONE zone")
+                # s1 increases with speed
+                s1_vol = min(100, current_speed * 10)  # 10% volume per km/h
+                sound_manager.play("s1", s1_vol)
                 
-                # Zone behaviors
-                if current_zone == Zone.INTRO:
-                    # Only abstract track in intro
-                    intro_vol = 0 + (current_speed * 20)  # Base 50% + 5% per km/h
-                    sound_manager.play_s1(intro_vol)
-                    sound_manager.play_s2(0)
-                    sound_manager.play_s3(0)
+                # s2 peaks at medium speed
+                s2_vol = min(100, max(0, 100 - abs(25 - current_speed) * 4))
+                sound_manager.play("s2", s2_vol)
                 
-                #elif current_zone == Zone.MAIN:
-                    # Speed-based mix
-                    # abstract_vol = min(100, current_speed * 10)
-                    # sound_manager.play_abstract(abstract_vol)
-                    
-                    # deconstr_vol = min(100, max(0, current_speed * 5))
-                    # sound_manager.play_deconstr(deconstr_vol)
-                    
-                    # narrative_vol = max(0, 100 - (current_speed * 10))
-                    # sound_manager.play_narrative(narrative_vol) 
+                # s3 fades out as speed increases
+                s3_vol = max(0, 100 - current_speed * 5)  # Starts at 100%, drops 5% per km/h
+                sound_manager.play("s3", s3_vol)
                 
-                #elif current_zone == Zone.MILESTONE:
-                    # sound_manager.play_abstract(30)
-                    # sound_manager.play_deconstr(100)
-                    # sound_manager.play_narrative(20)
+                # s4 only plays at high speeds
+                if current_speed > 30:
+                    s4_vol = min(100, (current_speed - 30) * 5)
+                    sound_manager.play("s4", s4_vol)
+                else:
+                    sound_manager.play("s4", 0)
             else:
-                sound_manager.mute_all()
+                # Stop all sounds when not moving
+                sound_manager.stop_all()
+                sound_manager.start_all()  # Restart muted
             
             # Apply master volume
             sound_manager.set_master_volume(volume_control.volume)
             
             if MONITOR_VOLUMES:
-                print(f"\nZone: {current_zone.name}")
-                print(f"Time: {active_time:.1f}s")
-                print(f"Speed: {current_speed:.1f} km/h")
+                print(f"\nSpeed: {current_speed:.1f} km/h")
+                print("Volumes:")
+                for name, vol in sound_manager.volumes.items():
+                    print(f"- {name}: {vol*100:.0f}%")
             
             time.sleep(0.1)
             
     except KeyboardInterrupt:
-        print("\nStopping demo...")
-        sound_manager.mute_all()
+        print("\nStopping...")
+        sound_manager.stop_all()
         pygame.quit()
 
 if __name__ == "__main__":
