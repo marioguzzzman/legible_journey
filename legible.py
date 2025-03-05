@@ -1,75 +1,85 @@
-# The Legible project's main program
+# The Legible project's sound demo
 
- from colorama import Fore, Back, Style
+from colorama import Fore, Back, Style
 
 print(Style.DIM, end="")
 import pygame
 print(Style.RESET_ALL)
 
-import wheel_meter
-from config import *
 import time
-import numpy as np
+from wheel_meter import main_wheel, pedal
+from sound_behavior import SoundManager, Zone
 from hardware_controls import VolumeEncoder
+from config import *
 
-pygame.mixer.init()
-
-folder_path = "/home/djarak/LEGIBLE/tracks/"
-ext = ".mp3"
-
-# Channel initialization
-channels = {
-    "abstract": pygame.mixer.Channel(0),
-    "deconstr": pygame.mixer.Channel(1),
-    "narrative": pygame.mixer.Channel(2)
-}
-
-print("Loading sounds (it can take several seconds)...")
-
-# Sound initialization
-sounds = {
-    "abstract": pygame.mixer.Sound(folder_path + "ligne_abstraction" + ext),
-    "deconstr": pygame.mixer.Sound(folder_path + "ligne_deconstruite" + ext),
-    "narrative": pygame.mixer.Sound(folder_path + "ligne_narrative" + ext)
-}
-
-print(Fore.GREEN + "Now playing. Time to get on the bike!" + Style.RESET_ALL)
-
-# Volume initialization
-current_volumes = {channel: 0.0 for channel in channels}
-
-# Starts all the channels
-for name, channel in channels.items():
-    channel.play(sounds[name], loops=-1, fade_ms=FADE_MS)
-
-def interpolate_volume(speed, curve):
-    speeds, volumes = zip(*curve)
-    return np.interp(speed * 100 / MAX_SPEED, speeds, volumes)
-
-def get_all_volumes(speed):
-    return [f"{interpolate_volume(wheel_meter.speed, VOLUME_CURVES[c]):.2f}" for c in channels]
-
-def pygame_loop():
-    running = True
+def main():
+    sound_manager = SoundManager()
     volume_control = VolumeEncoder()
-    last_volumes = {channel: 0.0 for channel in channels}
     
-    while running:
-        target_volumes = {channel: interpolate_volume(wheel_meter.speed, VOLUME_CURVES[channel]) for channel in channels}
-
-        for name, channel in channels.items():
-            current_volumes[name] += (target_volumes[name] - current_volumes[name]) * LERP_SPEED
-            # Apply master volume from encoder
-            final_volume = current_volumes[name] * volume_control.volume
-            channel.set_volume(final_volume)
+    print("\nStarting sound demo...")
+    print("Press Ctrl+C to exit")
+    
+    start_time = time.time()
+    active_time = 0
+    current_zone = Zone.INTRO
+    
+    try:
+        while True:
+            current_speed = main_wheel.speed
+            is_moving = main_wheel.is_moving or pedal.is_moving
             
-            # Store last volume without LED feedback
-            last_volumes[name] = final_volume
+            if is_moving:
+                active_time = time.time() - start_time
+                
+                # Zone transitions
+                if current_zone == Zone.INTRO:
+                    if active_time >= 30 or current_speed >= 10:
+                        current_zone = Zone.MAIN
+                        print(f"Transitioning to MAIN zone (Time: {active_time:.1f}s, Speed: {current_speed:.1f}km/h)")
+                elif current_zone == Zone.MAIN and active_time >= 300:
+                    current_zone = Zone.MILESTONE
+                    print("Transitioning to MILESTONE zone")
+                
+                # Zone behaviors
+                if current_zone == Zone.INTRO:
+                    # Only abstract track in intro
+                    abstract_vol = 50 + (current_speed * 5)  # Base 50% + 5% per km/h
+                    sound_manager.play_abstract(abstract_vol)
+                    sound_manager.play_deconstr(0)
+                    sound_manager.play_narrative(0)
+                
+                elif current_zone == Zone.MAIN:
+                    # Speed-based mix
+                    abstract_vol = min(100, current_speed * 10)
+                    sound_manager.play_abstract(abstract_vol)
+                    
+                    deconstr_vol = min(100, max(0, current_speed * 5))
+                    sound_manager.play_deconstr(deconstr_vol)
+                    
+                    narrative_vol = max(0, 100 - (current_speed * 10))
+                    sound_manager.play_narrative(narrative_vol)
+                
+                elif current_zone == Zone.MILESTONE:
+                    sound_manager.play_abstract(30)
+                    sound_manager.play_deconstr(100)
+                    sound_manager.play_narrative(20)
+            else:
+                sound_manager.mute_all()
+            
+            # Apply master volume
+            sound_manager.set_master_volume(volume_control.volume)
+            
+            if MONITOR_VOLUMES:
+                print(f"\nZone: {current_zone.name}")
+                print(f"Time: {active_time:.1f}s")
+                print(f"Speed: {current_speed:.1f} km/h")
+            
+            time.sleep(0.1)
+            
+    except KeyboardInterrupt:
+        print("\nStopping demo...")
+        sound_manager.mute_all()
+        pygame.quit()
 
-        if (MONITOR_VOLUMES):
-            print(f"Speed: {wheel_meter.speed} | Master Volume: {volume_control.volume:.2f}")
-            print(f"Volumes: {get_all_volumes(wheel_meter.speed)}")
-
-        time.sleep(0.1)
-
-pygame_loop()
+if __name__ == "__main__":
+    main() 
