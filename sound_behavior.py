@@ -26,9 +26,9 @@ class SoundManager:
                 self.sounds[sound_name] = pygame.mixer.Sound(sound_path)
                 self.channels[sound_name] = pygame.mixer.Channel(i-1)
                 self.volumes[sound_name] = 0.0
-                print(f"✓ Loaded {sound_name}")
+                print(f"+ Loaded {sound_name}")
             except FileNotFoundError:
-                print(f"✗ Could not find {sound_path}")
+                print(f"- Could not find {sound_path}")
     
     def start_all(self):
         """Start playing all loaded sounds (muted)"""
