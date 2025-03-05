@@ -32,43 +32,44 @@ class SoundManager:
             pygame.mixer.init()
         
         # Load the three tracks
-        self.tracks_path = "/home/djarak/LEGIBLE/tracks/"
-        self.abstract = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_abstraction.mp3"))
-        self.deconstr = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_deconstruite.mp3"))
-        self.narrative = pygame.mixer.Sound(os.path.join(self.tracks_path, "ligne_narrative.mp3"))
-        
+        self.tracks_path = "/home/djarak/LEGIBLE/Audios/"
+
+        self.t1_velo_lent = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S1 velo lent.mp3"))
+        self.t1_velo_moyen = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S2 velo moyen.mp3"))
+        self.t1_velo_rapide = pygame.mixer.Sound(os.path.join(self.tracks_path, "T1 S3 velo rapide.mp3"))
+         
         # Create channels
-        self.abstract_channel = pygame.mixer.Channel(0)
-        self.deconstr_channel = pygame.mixer.Channel(1)
-        self.narrative_channel = pygame.mixer.Channel(2)
+        self.t1_velo_lent_channel = pygame.mixer.Channel(0)
+        self.t1_velo_moyen_channel = pygame.mixer.Channel(1)
+        self.t1_velo_rapide_channel = pygame.mixer.Channel(2)
         
         # Start playing all tracks (muted)
-        self.abstract_channel.play(self.abstract, loops=-1)
-        self.deconstr_channel.play(self.deconstr, loops=-1)
-        self.narrative_channel.play(self.narrative, loops=-1)
+        self.t1_velo_lent_channel.play(self.t1_velo_lent, loops=-1)
+        self.t1_velo_moyen_channel.play(self.t1_velo_moyen, loops=-1)
+        self.t1_velo_rapide_channel.play(self.t1_velo_rapide, loops=-1)
         
-        self.current_volumes = {"abstract": 0.0, "deconstr": 0.0, "narrative": 0.0}
+        self.current_volumes = {"velo_lent": 0.0, "velo_moyen": 0.0, "velo_rapide": 0.0}
         self.mute_all()
         
         # Zone configurations
         self.zones: Dict[Zone, ZoneConfig] = {
             Zone.INTRO: ZoneConfig(
                 duration=30,
-                abstract_behavior="Starts at 50% volume, increases with speed",
-                deconstr_behavior="Muted",
-                narrative_behavior="Muted"
+                velo_lent_behavior="Starts at 0% volume, increases with speed",
+                velo_moyen_behavior="Muted",
+                velo_rapide_behavior="Muted"
             ),
             Zone.MAIN: ZoneConfig(
                 duration=270,  # 4.5 minutes (until milestone)
-                abstract_behavior="Volume follows speed curve",
+               """  abstract_behavior="Volume follows speed curve",
                 deconstr_behavior="Fades in at medium speeds",
-                narrative_behavior="Loud at start, fades with speed"
+                narrative_behavior="Loud at start, fades with speed" """
             ),
             Zone.MILESTONE: ZoneConfig(
                 duration=None,  # Continues until stop
-                abstract_behavior="Reduced volume",
+                """ abstract_behavior="Reduced volume",
                 deconstr_behavior="Main focus - full volume",
-                narrative_behavior="Subtle background"
+                narrative_behavior="Subtle background" """
             )
         }
         

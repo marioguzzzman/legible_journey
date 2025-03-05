@@ -43,10 +43,10 @@ def main():
                 # Zone behaviors
                 if current_zone == Zone.INTRO:
                     # Only abstract track in intro
-                    abstract_vol = 50 + (current_speed * 5)  # Base 50% + 5% per km/h
-                    sound_manager.play_abstract(abstract_vol)
-                    sound_manager.play_deconstr(0)
-                    sound_manager.play_narrative(0)
+                    abstract_vol = 0 + (current_speed * 20)  # Base 50% + 5% per km/h
+                    sound_manager.play_velo_lent(abstract_vol)
+                    sound_manager.play_velo_moyen(0)
+                    sound_manager.play_velo_rapide(0)
                 
                 elif current_zone == Zone.MAIN:
                     # Speed-based mix
