@@ -85,25 +85,25 @@ class SoundManager:
         self.total_active_time = 0
     
     def play_s1(self, target_volume: float):
-        """Play abstract track at specified volume (0-100) with smooth transition"""
+        """Play s1 track at specified volume (0-100) with smooth transition"""
         self.current_volumes["s1"] += (
             (target_volume/100.0) - self.current_volumes["s1"]
         ) * LERP_SPEED
-        self.abstract_channel.set_volume(self.current_volumes["abstract"] * MASTER_VOLUME)
+        self.s1_channel.set_volume(self.current_volumes["s1"] * MASTER_VOLUME)
     
     def play_s2(self, target_volume: float):
-        """Play deconstructed track at specified volume (0-100) with smooth transition"""
+        """Play s2 track at specified volume (0-100) with smooth transition"""
         self.current_volumes["s2"] += (
             (target_volume/100.0) - self.current_volumes["s2"]
         ) * LERP_SPEED
-        self.deconstr_channel.set_volume(self.current_volumes["deconstr"] * MASTER_VOLUME)
+        self.s2_channel.set_volume(self.current_volumes["s2"] * MASTER_VOLUME)
     
     def play_s3(self, target_volume: float):
-        """Play narrative track at specified volume (0-100) with smooth transition"""
+        """Play s3 track at specified volume (0-100) with smooth transition"""
         self.current_volumes["s3"] += (
             (target_volume/100.0) - self.current_volumes["s3"]
         ) * LERP_SPEED
-        self.narrative_channel.set_volume(self.current_volumes["narrative"] * MASTER_VOLUME)
+        self.s3_channel.set_volume(self.current_volumes["s3"] * MASTER_VOLUME)
     
     def mute_all(self):
         """Smoothly mute all tracks"""
