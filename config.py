@@ -24,7 +24,7 @@ MIN_SPEED = 0.5 # Minimum speed in km/h to consider wheel moving
 
 BOUNCE_TIME = 0.005 # The time span during which the sensor ingores inputs after a trigger (necessary)
 DEFAULT_DIAMETER = 622 # The default diameter of the wheel (in millimeters)
-PERIOD = 0.5 # The duration between each measuring (in seconds)
+PERIOD = 1 # The duration between each measuring (in seconds)
 USE_AVG_SPEED = False # Whether to use the average speed instead of the direct speed
 AVG_SMOOTHNESS = 5 # The amount of stored previous speed (used to compute a rolling average)
 
