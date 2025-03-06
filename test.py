@@ -6,7 +6,7 @@ pygame.mixer.init()
 
 # Load the sound file
 try:
-    sound = pygame.mixer.Sound("home/djarak/legible_journey/Audios/s1.mp3")  # Update with the correct path
+    sound = pygame.mixer.Sound("/home/djarak/legible_journey/Audios/s1.mp3")  # Update with the correct path
 except pygame.error as e:
     print(f"Error loading sound: {e}")
     exit(1)
