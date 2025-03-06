@@ -3,6 +3,35 @@ Legible_journey art project
 
 ## legible.py
 
+The project's main program controls interactive sound based on bicycle movement. It has two modes:
+
+### Long Trip Mode (Default)
+- Three sounds (s5, s6, s7) that respond to speed ranges:
+  - 0-7 km/h: "bliss" sound plays
+  - 7-16 km/h: "story" sound plays
+  - Above 16 km/h: "deconstruction" sound plays
+- Sounds fade smoothly between transitions
+- If wheel stops for 30 seconds:
+  - All sounds stop
+  - Sequence resets
+  - Will start fresh when movement resumes
+
+### Short Trip Mode
+- Sequential playback of sounds over time frames:
+  1. 0-30s: Gradual introduction of s1, s2, s3
+  2. 30s-2m30s: Speed-controlled s4
+  3. 2m30s-4m30s: Variable s5
+- Resets after completion
+
+## Configuration
+- Speed thresholds adjustable in legible.py:
+  - SLOW_MAX = 7 km/h
+  - MEDIUM_MAX = 16 km/h
+- Sound transition rate: FADE_RATE = 0.5
+- Measurement period: PERIOD = 3.5 seconds
+
+## legible.py
+
 The project's main program. According to the speed of a bike's wheel, the program will adjust independently the volumes of 3 custom audio tracks. Its behaviour can be configured inside `config.py`. The program now includes master volume control via a rotary encoder and visual feedback through an RGB LED.
 
 ## wheel_meter.py
@@ -109,10 +138,23 @@ The configuration file for all components. Key sections include:
 
 ## Usage
 
-1. Connect all hardware components according to the pin assignments
+1. Connect all hardware components
 2. Configure settings in `config.py` if needed
 3. Run `legible.py`
 4. Use the rotary encoder to adjust master volume
-5. Press the save button to store volume settings
-6. Monitor milestone progress through the RGB LED
-7. Debug mode can be enabled in config.py for detailed sensor information
+5. Monitor speed and sound transitions in debug mode
+
+## Debug Mode
+The legible.py program starts on boot. To run manually:
+1. Stop existing processes:
+   ```bash
+   ps aux | grep python
+   kill -9 [process_ID]
+   ```
+2. Enable debug output in config.py:
+   ```python
+   DEBUG_MODE = True
+   DEBUG_SOUND = True  # For sound transitions
+   DEBUG_MAIN_WHEEL = True  # For speed readings
+   ```
+
