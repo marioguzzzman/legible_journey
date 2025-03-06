@@ -7,10 +7,12 @@ import pygame
 print(Style.RESET_ALL)
 
 import time
-from wheel_meter import main_wheel
+from wheel_meter import main_wheel, pedal
 from sound_behavior import SoundManager
 from hardware_controls import VolumeEncoder
 from config import *
+import atexit
+from RPi import GPIO
 
 def main():
     sound_manager = SoundManager()
@@ -256,6 +258,13 @@ def main():
         print("\nStopping...")
         sound_manager.stop_all()
         pygame.quit()
+    finally:
+        GPIO.cleanup()  # Ensure GPIO pins are released
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Program interrupted. Cleaning up...")
+    finally:
+        GPIO.cleanup()  # Ensure GPIO pins are released

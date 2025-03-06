@@ -8,6 +8,7 @@ from colorama import Fore, Back, Style
 import numpy as np
 from datetime import datetime
 from hardware_controls import VolumeEncoder
+import atexit
 
 # Constants
 from config import *
@@ -31,9 +32,16 @@ class PedalWheel:
         self.monitor_thread = Thread(target=self.check_movement, daemon=True)
         self.monitor_thread.start()
         
+        atexit.register(self.cleanup)  # Register cleanup function
+        
         if DEBUG_MODE:
             self.debug_thread = Thread(target=self.debug_output, daemon=True)
             self.debug_thread.start()
+    
+    def cleanup(self):
+        """Clean up GPIO resources"""
+        self.sensor1.close()
+        self.sensor2.close()
     
     def sensor1_detected(self):
         current_time = time()
@@ -98,9 +106,15 @@ class MainWheel:
         self.monitor_thread = Thread(target=self.round_meter, daemon=True)
         self.monitor_thread.start()
         
+        atexit.register(self.cleanup)  # Register cleanup function
+        
         if DEBUG_MODE:
             self.debug_thread = Thread(target=self.debug_output, daemon=True)
             self.debug_thread.start()
+    
+    def cleanup(self):
+        """Clean up GPIO resources"""
+        self.sensor.close()
     
     def detected(self):
         self.count += 1
