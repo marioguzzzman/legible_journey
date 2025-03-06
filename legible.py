@@ -197,6 +197,8 @@ def main():
                 # Start all sounds if not already started
                 if is_moving and start_time is None:
                     start_time = current_time
+                    sound_manager.stop_all()  # Stop any existing playback
+                    sound_manager.start_all()  # Start fresh playback
                     sound_manager.play("s5", 0)  # bliss
                     sound_manager.play("s6", 0)  # story
                     sound_manager.play("s7", 0)  # deconstruction
@@ -208,10 +210,10 @@ def main():
                         if stop_counter is None:
                             stop_counter = current_time
                             print("\n Wheel stopped - starting 60s countdown")
-                        elif current_time - stop_counter >= 60:
-                            print("\n Wheel stopped for 60s - resetting everything")
+                        elif current_time - stop_counter >= 30:
+                            print("\n Wheel stopped for 60s - resetting sequence")
                             sound_manager.stop_all()
-                            start_time = None
+                            start_time = None  # Reset start time to trigger fresh start
                             stop_counter = None
                             # Reset all volumes
                             for key in current_volumes:
