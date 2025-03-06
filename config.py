@@ -64,4 +64,4 @@ MONITOR_VOLUMES = False # Not recommended, because it takes ressources that are 
 
 # Volume settings
 DEFAULT_MASTER_VOLUME = 0.5  # Default master volume level (0.0-1.0)
-MASTER_VOLUME = 0.5  # Current master volume level (0.0-1.0)
+MASTER_VOLUME = 1.0  # Current master volume level (0.0-1.0)
