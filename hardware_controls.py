@@ -8,6 +8,9 @@ import atexit
 from threading import Thread
 from RPi import GPIO
 
+# Set GPIO mode at module level
+GPIO.setmode(GPIO.BCM)
+
 class RGBLed:
     _instance = None
     
@@ -103,20 +106,26 @@ class VolumeEncoder:
             return
             
         try:
-            GPIO.setmode(GPIO.BCM)
+            # Remove GPIO.setmode from here since it's now at module level
             GPIO.setup(ENCODER_CLK, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_DT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_SW, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            
             self._position = int(self._load_volume() * 100)
             self.clk_last_state = GPIO.input(ENCODER_CLK)
             self.running = True
+            
+            # Start monitoring thread
             self.monitor_thread = threading.Thread(target=self._monitor_rotation, daemon=True)
             self.monitor_thread.start()
-            atexit.register(self.cleanup)  # Register cleanup function
             
+            # Start debug thread if needed
             if DEBUG_MODE:
                 self.debug_thread = threading.Thread(target=self.debug_output, daemon=True)
                 self.debug_thread.start()
+            
+            # Register cleanup
+            atexit.register(self.cleanup)
             
             self._initialized = True
             
