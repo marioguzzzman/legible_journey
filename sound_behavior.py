@@ -11,6 +11,7 @@ class SoundManager:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.tracks_path = os.path.join(current_dir, "Audios")
         print(f"Loading audio files from: {self.tracks_path}")
+        print(f"Audio files are located at: {self.tracks_path}")
         
         # Create dictionary to store sounds and channels
         self.sounds = {}
