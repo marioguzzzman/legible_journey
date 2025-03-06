@@ -41,8 +41,8 @@ def main():
     stop_counter = None
 
     # Speed thresholds for long trip (km/h)
-    SLOW_MAX = 5
-    MEDIUM_MAX = 10
+    SLOW_MAX = 7
+    MEDIUM_MAX = 16
     # Anything above MEDIUM_MAX is considered fast
 
     # Volume targets for each sound
