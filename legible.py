@@ -68,7 +68,7 @@ def main():
             current_time = time.time()
 
             # Update master volume from encoder
-            master_volume = volume_control.get_volume()
+            master_volume = 1.0
 
             if DEBUG_MODE:
                 print("\n=== Time Frame Status ===")
