@@ -21,12 +21,12 @@ def main():
     # Start all sounds muted
     sound_manager.start_all()
     
-    print("\nStarting sound demo...")
+    print("\nStarting legible...")
     print("Press Ctrl+C to exit")
     
     # Play sound "s1" at full volume (100%)
-    sound_manager.play("s1", 100)  # Play sound "s1" at full volume
-    print("Playing sound 's1' at full volume.")
+    #sound_manager.play("s1", 100)  # Play sound "s1" at full volume
+    #print("Playing sound 's1' at full volume.")
 
     start_time = None
     last_active_time = time.time()
@@ -41,8 +41,8 @@ def main():
     stop_counter = None
 
     # Speed thresholds for long trip (km/h)
-    SLOW_MAX = 3
-    MEDIUM_MAX = 7
+    SLOW_MAX = 5
+    MEDIUM_MAX = 10
     # Anything above MEDIUM_MAX is considered fast
 
     # Volume targets for each sound
@@ -60,7 +60,7 @@ def main():
     }
 
     # Fade rate (volume change per iteration)
-    FADE_RATE = 0.05
+    FADE_RATE = 0.2
 
     # Initialize master volume
     master_volume = DEFAULT_MASTER_VOLUME
@@ -86,6 +86,8 @@ def main():
                 print(f"Moving: {is_moving}")
                 print(f"Speed: {current_speed:.1f} km/h")
                 print(f"Master Volume: {master_volume:.2f}")
+                print(f"\nCurrent Speed: {current_speed:.1f} km/h")
+                print(f"Moving: {is_moving}")
 
             if what_trip == short_trip:
                 # [Original short_trip code remains exactly the same]
