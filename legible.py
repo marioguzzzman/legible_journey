@@ -24,6 +24,10 @@ def main():
     print("\nStarting sound demo...")
     print("Press Ctrl+C to exit")
     
+    # Play sound "s1" at full volume (100%)
+    sound_manager.play("s1", 100)  # Play sound "s1" at full volume
+    print("Playing sound 's1' at full volume.")
+
     start_time = None
     last_active_time = time.time()
     
