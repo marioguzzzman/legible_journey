@@ -60,7 +60,7 @@ def main():
     }
 
     # Fade rate (volume change per iteration)
-    FADE_RATE = 0.2
+    FADE_RATE = 0
 
     # Initialize master volume
     master_volume = DEFAULT_MASTER_VOLUME
