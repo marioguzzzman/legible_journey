@@ -103,23 +103,16 @@ class VolumeEncoder:
             return
             
         try:
-            # Setup GPIO
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(ENCODER_CLK, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_DT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(ENCODER_SW, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-            
-            # Initialize position counter (0-100)
             self._position = int(self._load_volume() * 100)
             self.clk_last_state = GPIO.input(ENCODER_CLK)
-            
-            # Start monitoring thread
             self.running = True
             self.monitor_thread = threading.Thread(target=self._monitor_rotation, daemon=True)
             self.monitor_thread.start()
-            
-            # Register cleanup
-            atexit.register(self.cleanup)
+            atexit.register(self.cleanup)  # Register cleanup function
             
             if DEBUG_MODE:
                 self.debug_thread = threading.Thread(target=self.debug_output, daemon=True)
@@ -169,7 +162,11 @@ class VolumeEncoder:
     def volume(self):
         """Convert position (0-100) to volume (0.0-1.0)"""
         return self.position / 100.0
-    
+
+    def get_volume(self):
+        """Get the current volume as a percentage (0-100)"""
+        return self.position  # Return the position directly as percentage
+
     def cleanup(self):
         """Clean up GPIO resources"""
         self.running = False
