@@ -158,3 +158,23 @@ The legible.py program starts on boot. To run manually:
    DEBUG_MAIN_WHEEL = True  # For speed readings
    ```
 
+3. Audio configuration
+
+   to see the list of audio devices
+   ```bash
+   aplay -l
+   ```
+
+   edit the audio configuration file
+   ```bash
+   sudo nano /etc/asound.conf
+   ```
+   
+
+ 
+
+
+
+
+
+
