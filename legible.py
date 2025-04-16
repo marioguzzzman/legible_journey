@@ -41,7 +41,7 @@ def main():
     stop_counter = None
 
     # Speed thresholds for long trip (km/h)
-    SLOW_MAX = 7
+    SLOW_MAX = 8
     MEDIUM_MAX = 16
     # Anything above MEDIUM_MAX is considered fast
 
@@ -60,7 +60,7 @@ def main():
     }
 
     # Fade rate (volume change per iteration)
-    FADE_RATE = 0.5
+    FADE_RATE = 0.8
 
     # Initialize master volume
     master_volume = DEFAULT_MASTER_VOLUME
