@@ -41,7 +41,7 @@ def main():
     stop_counter = None
 
     # Speed thresholds for long trip (km/h)
-    SLOW_MAX = 8
+    SLOW_MAX = 9
     MEDIUM_MAX = 16
     # Anything above MEDIUM_MAX is considered fast
 
@@ -60,7 +60,7 @@ def main():
     }
 
     # Fade rate (volume change per iteration)
-    FADE_RATE = 0.8
+    FADE_RATE = 0.0
 
     # Initialize master volume
     master_volume = DEFAULT_MASTER_VOLUME
@@ -210,7 +210,7 @@ def main():
                         if stop_counter is None:
                             stop_counter = current_time
                             print("\n Wheel stopped - starting 60s countdown")
-                        elif current_time - stop_counter >= 30:
+                        elif current_time - stop_counter >= 15:
                             print("\n Wheel stopped for 60s - resetting sequence")
                             sound_manager.stop_all()
                             start_time = None  # Reset start time to trigger fresh start
